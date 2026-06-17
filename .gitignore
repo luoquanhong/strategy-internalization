@@ -1,0 +1,27 @@
+# 运行时数据（含真实使用记录，不入库）
+retrieval_state.json
+scripts/processed_insights.json
+
+# 环境变量 / 密钥（真实端点和 key）
+.env
+
+# Python 缓存
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 开发协作产物（TDD 多模型评审原始输出）
+tests/.review_round*.md
+tests/.writer_raw*.md
+tests/.executor_raw*.md

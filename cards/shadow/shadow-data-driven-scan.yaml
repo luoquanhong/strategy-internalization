@@ -1,0 +1,20 @@
+id: shadow-data-driven-scan
+title: 数据驱动全量排查法
+scenario_tags:
+- bug_fix
+trigger_keywords:
+- 全库
+- 排查
+- 印象
+- SQL
+- 扫描
+- 统计
+- 分类
+- 遗漏
+actions:
+- 放弃基于局部经验或代码印象的定位，转全量数据驱动扫描
+- 把bug表现抽象为可计算的精确特征模式（如SQL LIKE条件）
+- 全空间穷举扫描后对命中点分A/B/C类批量分析
+priority: 8
+source: insights/2026-06-15-裸文ToolCall全库排查方法论-ReasoningBank推理产出.md
+status: shadow

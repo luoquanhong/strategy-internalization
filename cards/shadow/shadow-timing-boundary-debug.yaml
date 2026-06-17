@@ -1,0 +1,21 @@
+id: shadow-timing-boundary-debug
+title: 时序与边界状态解构调试
+scenario_tags:
+- bug_fix
+trigger_keywords:
+- 时序
+- 状态机
+- 流式
+- 竞态
+- 缓冲区
+- 拼接
+- 分块
+- 离散化
+- 异步
+actions:
+- 将连续动态过程离散化，构建状态机模型追踪数据流转
+- 识别缓冲区刷新时机、分块拼接逻辑、状态转换竞态
+- 按时间轴切分数据接收/处理/输出阶段逐一排查
+priority: 8
+source: insights/2026-06-14-流式裸文Bug调试与AB反向验证-ReasoningBank推理产出.md
+status: shadow

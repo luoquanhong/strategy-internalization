@@ -1,0 +1,21 @@
+id: shadow-complexity-dynamic-route
+title: 复杂度驱动的动态路由
+scenario_tags:
+- system_design
+- cost_safety
+trigger_keywords:
+- 复杂度
+- 动态路由
+- 特征提取
+- 难度分类
+- 算力分配
+- 非对称
+- 效能
+- 兜底降级
+actions:
+- 前置特征提取与复杂度评估，按难度/重要性/成本分类
+- 映射到不同算力或精度处理模块
+- 设动态调度阈值与失败兜底降级，非对称分配实现全局效能最大
+priority: 7
+source: insights/2026-06-14-智能路由方案设计与双模型评审-ReasoningBank推理产出.md
+status: shadow

@@ -1,0 +1,16 @@
+actions:
+- 改完要验证闭环
+- 不空谈要实干
+- bug修复+测试≠交付，要A/B反向验证
+id: general-pragmatic
+priority: 5
+scenario_tags:
+- general
+status: active
+title: 务实闭环交付
+trigger_keywords:
+- 验证
+- 闭环
+- 测试
+- 验收
+- 交付

@@ -1,0 +1,26 @@
+id: shadow-elastic-route-fallback
+title: 弹性升降级路由机制
+scenario_tags:
+- system_design
+- cost_safety
+trigger_keywords:
+- 降级路由
+- 弹性升降级
+- 高可用
+- 成本控制
+- 模型切换
+- 高低档模型
+- 高峰降级
+- 闲时升级
+- 调度架构
+- 模型槽位
+- 降级保底
+actions:
+- 为每个任务槽位配置高低两档模型
+- 高峰期或预算紧张时自动降级保底
+- 闲时或关键任务升级追质
+- 按任务复杂度弹性分配而非一刀切
+- 建立成本控制与任务质量的平衡机制
+priority: 7
+status: shadow
+source: insights/智能路由方案迭代-ReasoningBank推理产出.md

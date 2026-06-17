@@ -1,0 +1,19 @@
+actions:
+- 遇报错先定位根因不绕过
+- 不要用try-except吞掉异常
+- 错误是信号不是麻烦
+id: no-blind-bypass-error
+priority: 9
+scenario_tags:
+- bug_fix
+- new_build
+status: active
+title: 严禁盲目绕过报错
+trigger_keywords:
+- 报错
+- 异常
+- 绕过
+- try
+- except
+- 吞掉
+- 错误

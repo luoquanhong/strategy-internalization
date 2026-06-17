@@ -1,0 +1,20 @@
+id: shadow-info-ceiling-peel
+title: 方案边界与信息上限剥离
+scenario_tags:
+- review
+- system_design
+trigger_keywords:
+- 信息不足
+- 天然局限
+- 信息熵
+- 硬指标
+- 伪优化
+- 单句分类
+- 补充数据源
+actions:
+- 把方法论改进空间与输入数据信息熵上限物理隔离
+- 前置判断：若天然局限是底层信息量不足，立即停止模型/算法调优
+- 明确硬指标红线，要求补充数据源或重构输入特征，避免伪优化死胡同
+priority: 8
+source: insights/2026-06-15-ML分类器方案演进与三阶段评审方法论-ReasoningBank推理产出.md
+status: shadow

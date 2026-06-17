@@ -1,0 +1,19 @@
+id: shadow-spacetime-decouple
+title: 时空双维解耦演进
+scenario_tags:
+- system_design
+trigger_keywords:
+- 计算推理分离
+- 精简落地
+- 长期增长
+- 分阶段
+- 解耦
+- execute_code
+- 上下文膨胀
+actions:
+- 识别'无状态计算'与'有状态推理'，物理剥离执行与决策
+- 高并发低认知的计算活交代码，低并发高认知的推理才用LLM
+- 初期精简内核保障敏捷落地，后期按需异步唤醒长期治理模块
+priority: 8
+source: insights/2026-06-15-策略内化层架构设计方法论-ReasoningBank推理产出.md
+status: shadow

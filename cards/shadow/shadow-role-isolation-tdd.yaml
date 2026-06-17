@@ -1,0 +1,21 @@
+id: shadow-role-isolation-tdd
+title: 角色隔离与实证闭环
+scenario_tags:
+- test
+- system_design
+trigger_keywords:
+- 多模型TDD
+- 静态评审
+- 实跑
+- A/B反向
+- 角色拆分
+- fixture
+- 防线验证
+actions:
+- 摒弃静态走查主观假设，角色拆分（写测试/审查/实现）跨域交叉消盲区
+- 实跑A/B反向验证，极端环境运行证伪防御机制有效性
+- 反向测试无法击穿硬闸门才认定架构真正落地
+- 静态评审发现不了的bug只有实跑才暴露，两者都要
+priority: 9
+source: insights/2026-06-15-策略内化层二轮评审与多模型TDD落地-ReasoningBank推理产出.md
+status: shadow

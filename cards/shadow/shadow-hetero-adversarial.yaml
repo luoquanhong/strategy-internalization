@@ -1,0 +1,20 @@
+id: shadow-hetero-adversarial
+title: 异构对抗与多维风控
+scenario_tags:
+- review
+- system_design
+trigger_keywords:
+- 交叉审查
+- 红蓝对抗
+- 盲区
+- 风险维度
+- 正交
+- 多模型
+- 一句话哲学
+actions:
+- 引入不同倾向/底层逻辑的智能体交叉审查击破单一逻辑自洽
+- 把系统风险强制拆成四个正交维度，每个独立设计靶向缓解
+- 最终提炼一句话哲学作为后续演进的最高校验锚点
+priority: 8
+source: insights/2026-06-15-策略内化层架构设计方法论-ReasoningBank推理产出.md
+status: shadow

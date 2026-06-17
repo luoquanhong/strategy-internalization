@@ -1,0 +1,19 @@
+actions:
+- 先量化定位瓶颈再优化
+- 不凭感觉优化
+- 用数据说话
+id: quantify-bottleneck
+priority: 7
+scenario_tags:
+- refactor
+- bug_fix
+status: active
+title: 量化定位资源瓶颈
+trigger_keywords:
+- 瓶颈
+- 性能
+- 量化
+- 资源
+- 定位
+- 慢
+- 优化

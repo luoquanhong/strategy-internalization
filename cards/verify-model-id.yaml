@@ -1,0 +1,19 @@
+actions:
+- 用模型前核实完整标识
+- 不假设模型名直接探活
+- 灰度模型可直接POST试探
+id: verify-model-id
+priority: 7
+scenario_tags:
+- ops_config
+- bug_fix
+status: active
+title: 核实完整模型标识
+trigger_keywords:
+- 模型
+- model
+- 标识
+- 名称
+- 版本
+- 核实
+- 探活

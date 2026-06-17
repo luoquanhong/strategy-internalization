@@ -1,0 +1,21 @@
+id: shadow-lifecycle-matrix
+title: 生命周期多维矩阵法
+scenario_tags:
+- review
+- system_design
+trigger_keywords:
+- 矩阵
+- 生命周期
+- 横轴
+- 纵轴
+- 阶段
+- 维度
+- 结构化
+- 经验提取
+actions:
+- 横轴=时间维度工程生命周期（生产前/中/后）
+- 纵轴=业务核心领域（上线/监控/治理）
+- 交叉点定位具体实践动作，确保信息提取结构化
+priority: 7
+source: insights/2026-06-14-智能路由上生产全流程与P0修缮-ReasoningBank推理产出.md
+status: shadow

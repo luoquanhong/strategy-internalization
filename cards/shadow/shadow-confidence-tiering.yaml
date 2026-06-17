@@ -1,0 +1,21 @@
+id: shadow-confidence-tiering
+title: 置信度评估与动态提级
+scenario_tags:
+- system_design
+- cost_safety
+trigger_keywords:
+- 置信度
+- 提级
+- 阈值
+- 安全放行
+- 边界重试
+- 低分提级
+- 量化
+- 动态干预
+actions:
+- 基于历史命中率/自评打分/特征匹配为每次决策算置信分
+- 设多级阈值：安全放行/边界重试/低分提级三道防线
+- 低置信触发提级到更强模型，不让低质量结果直接流转
+priority: 8
+source: insights/2026-06-14-DeepSeek兼容性与code_review路由问题-ReasoningBank推理产出.md
+status: shadow

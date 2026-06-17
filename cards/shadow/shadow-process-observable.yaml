@@ -1,0 +1,23 @@
+id: shadow-process-observable
+title: 过程状态必须可观测禁止黑盒
+scenario_tags:
+- system_design
+- bug_fix
+trigger_keywords:
+- 黑盒
+- Unknown
+- 状态追踪
+- 可观测
+- 日志
+- 监控
+- 全链路
+- 中间状态
+actions:
+- 核心流程必须埋日志和状态追踪，不允许黑盒执行
+- 遇到异常/空响应必须抛明确错误，不能传占位符
+- 定期记录执行进度，出错后可回溯卡点
+- 构建全链路监控体系，状态退化为Unknown是严重信号
+priority: 9
+source: insights/2026-06-13-Anthropic适配与策略落地卡点-ReasoningBank推理产出.md; 2026-06-13-智能路由实战踩坑-ReasoningBank推理产出.md;
+  2026-06-13-框架评估与方案迭代方法论-ReasoningBank推理产出.md
+status: shadow

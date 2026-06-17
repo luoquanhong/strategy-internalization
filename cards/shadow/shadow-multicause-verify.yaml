@@ -1,0 +1,19 @@
+id: shadow-multicause-verify
+title: 同症多因拆解与反向验证
+scenario_tags:
+- bug_fix
+trigger_keywords:
+- 复发
+- 修好又出现
+- 同症状
+- 多根因
+- A/B验证
+- 排除法
+- 惯性
+actions:
+- 修复后复发先破除'修复未生效'惯性，建'同症状多根因'假设
+- 症状与底层触发条件分离，按调用路径/版本/环境构建平行假设树
+- 每个假设独立A/B反向验证，全部分支阻断才定性已解决
+priority: 9
+source: insights/2026-06-15-裸文ToolCall全库排查方法论-ReasoningBank推理产出.md
+status: shadow

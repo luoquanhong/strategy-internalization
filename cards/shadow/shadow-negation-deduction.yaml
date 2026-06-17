@@ -1,0 +1,20 @@
+id: shadow-negation-deduction
+title: 否定式推演定向法
+scenario_tags:
+- system_design
+- review
+trigger_keywords:
+- 为什么不是
+- 排除
+- 证伪
+- 方案选型
+- 架构方向
+- 极限施压
+- 硬约束
+actions:
+- 多目标约束下正向证明易陷局部最优，用逆向排除
+- 列出直觉主流方案，提'为什么不是X'挖掘极端场景致命缺陷
+- 通过证伪劣质选项暴露真正核心痛点，反推唯一能绕过约束的方向
+priority: 8
+source: insights/2026-06-15-策略内化层架构设计方法论-ReasoningBank推理产出.md
+status: shadow

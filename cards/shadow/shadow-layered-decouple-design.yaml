@@ -1,0 +1,25 @@
+id: shadow-layered-decouple-design
+title: 分层解耦架构设计法
+scenario_tags:
+- system_design
+trigger_keywords:
+- 分层解耦
+- 架构设计
+- 依赖关系
+- 数据流向
+- 独立层级
+- 物理解耦
+- 可扩展
+- 易迁移
+- 硬依赖
+- 需求分层
+- 模块替换
+actions:
+- 按依赖关系和数据流向将系统划分为独立层级
+- 确认各层产出是下层输入（如原始记忆→复习→推理）
+- 确保物理存储或模块逻辑绝对解耦，无硬依赖
+- 以便未来单独替换或迁移任意层级的实现方案
+- 将需求按价值分层，与对应成本模型精准匹配
+priority: 8
+status: shadow
+source: insights/策略-分层解耦架构设计法.md; insights/记忆系统建设过程梳理与ReasoningBank提炼.md; insights/智能路由方案迭代-ReasoningBank推理产出.md

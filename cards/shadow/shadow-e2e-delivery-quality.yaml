@@ -1,0 +1,21 @@
+id: shadow-e2e-delivery-quality
+title: 端到端交付质量保障
+scenario_tags:
+- system_design
+- test
+trigger_keywords:
+- 端到端
+- 交付
+- 上线
+- '500'
+- 功能开发
+- 生产故障
+- 验证流程
+- 用户信任
+actions:
+- 复杂系统不能只完成功能开发就上线，需端到端验证
+- 开发环境测试通过不等于可上线
+- 建立从功能实现到生产验证的完整质量流程
+priority: 8
+source: insights/2026-06-13-工程交付完整教训-ReasoningBank推理产出.md
+status: shadow

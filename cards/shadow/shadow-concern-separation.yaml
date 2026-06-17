@@ -1,0 +1,21 @@
+id: shadow-concern-separation
+title: 关注点分离与硬边界
+scenario_tags:
+- system_design
+- refactor
+trigger_keywords:
+- 控制平面
+- 推理平面
+- optimizer
+- 编译器
+- 硬闸门
+- 解耦
+- 边界
+- 资源限制
+actions:
+- 借鉴编译器Optimizer Pass思维，决策调度(控制平面)与执行计算(推理平面)分离
+- 两平面分离基础上在边界设计绝对硬闸门（资源占比限制+死循环熔断）
+- 控制平面可灵活迭代不影响执行平面稳定，为无限扩张提供物理约束
+priority: 8
+source: insights/2026-06-15-策略内化层二轮评审与多模型TDD落地-ReasoningBank推理产出.md
+status: shadow

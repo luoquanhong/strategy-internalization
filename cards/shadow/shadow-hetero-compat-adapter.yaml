@@ -1,0 +1,22 @@
+id: shadow-hetero-compat-adapter
+title: 异构接口兼容与抽象层隔离
+scenario_tags:
+- system_design
+trigger_keywords:
+- 异构
+- 兼容
+- 适配器
+- 供应商
+- API差异
+- 协议转换
+- 抽象层
+- 降级
+- 中间层
+actions:
+- 提取各供应商公共能力与参数交集构建基础抽象层
+- 针对非标特性构建独立适配器抹平差异（如DeepSeek tool_choice）
+- 关键节点设置降级与容错机制
+- 引入中间抽象层解耦上下游强依赖，不侵入原有核心模块
+priority: 8
+source: insights/2026-06-14-DeepSeek兼容性与code_review路由问题-ReasoningBank推理产出.md; 2026-06-14-智能路由部署与标记注入工程-ReasoningBank推理产出.md
+status: shadow

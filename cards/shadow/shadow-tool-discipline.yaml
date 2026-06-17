@@ -1,0 +1,19 @@
+id: shadow-tool-discipline
+title: 工具纪律与错误预防
+scenario_tags:
+- system_design
+trigger_keywords:
+- 技能
+- Skill
+- 工具纪律
+- 低级错误
+- 记忆
+- 系统性预防
+- 反复出现
+actions:
+- 执行复杂任务前加载必要技能，不凭记忆随意执行
+- 对同类错误做系统性预防而非一次性修补
+- 低级错误反复出现说明缺纪律不是缺能力
+priority: 7
+source: insights/2026-06-13-工程交付完整教训-ReasoningBank推理产出.md
+status: shadow
