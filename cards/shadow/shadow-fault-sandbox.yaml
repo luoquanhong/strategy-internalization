@@ -1,0 +1,20 @@
+id: shadow-fault-sandbox
+title: 故障链沙盘推演与立体防护
+scenario_tags:
+- system_design
+- bug_fix
+trigger_keywords:
+- 故障
+- 事故
+- 复盘
+- 链路
+- 放大器
+- 分层防御
+- 沙盘
+actions:
+- 按时序还原'导火索-激化条件-爆点放大'故障演化路径
+- 识别导致代价剧增的放大器节点（如重试引发计费倍增）
+- 前置输入过滤防爆+中置资源配额限流+后置异常自毁熔断
+priority: 8
+source: insights/2026-06-15-AIAgent上下文饱和循环烧钱事故防护-ReasoningBank推理产出.md
+status: shadow

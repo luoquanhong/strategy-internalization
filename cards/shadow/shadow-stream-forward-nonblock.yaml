@@ -1,0 +1,21 @@
+id: shadow-stream-forward-nonblock
+title: 流式数据转发须异步非阻塞
+scenario_tags:
+- system_design
+trigger_keywords:
+- 流式
+- stream
+- 转发
+- 阻塞
+- 缓冲
+- 异步
+- 内存溢出
+- 吞吐
+- 代理层
+actions:
+- 中间代理层处理流式响应必须真异步转发，不能全量缓存再转发
+- 同步阻塞或全量缓存会导致延迟激增、吞吐下降甚至内存溢出
+- 采用异步非阻塞的响应式编程模式
+priority: 8
+source: insights/2026-06-13-智能路由实战踩坑-ReasoningBank推理产出.md
+status: shadow

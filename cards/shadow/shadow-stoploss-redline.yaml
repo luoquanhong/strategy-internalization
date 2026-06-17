@@ -1,0 +1,21 @@
+id: shadow-stoploss-redline
+title: 止损决策需明确红线
+scenario_tags:
+- system_design
+- cost_safety
+trigger_keywords:
+- 止损
+- 回滚
+- 红线
+- 错误率
+- 阈值
+- 上线异常
+- 客观指标
+- 试错
+actions:
+- 上线前制定明确止损红线（错误率超阈值立即回滚）
+- 不凭主观经验或盲目试错决定是否回滚
+- 系统异常后及时触发回滚，不等在线上强行修复
+priority: 8
+source: insights/2026-06-13-智能路由实战踩坑-ReasoningBank推理产出.md
+status: shadow

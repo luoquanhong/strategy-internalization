@@ -1,0 +1,19 @@
+id: shadow-multi-model-review
+title: 多模型角色化交叉评审
+scenario_tags:
+- review
+trigger_keywords:
+- 三阶段评审
+- GLM一审
+- GPT交叉
+- Opus终审
+- 魔鬼代言人
+- 互补
+- 硬指标
+actions:
+- 初审侧重逻辑自洽与方向判断，交叉审查扮魔鬼代言人极限施压找茬
+- 终审负责综合裁决，利用不同模型偏好差异形成互补
+- 把'可行性确认'与'防御性排雷'分离，投入资源前全面暴露隐患
+priority: 8
+source: insights/2026-06-15-ML分类器方案演进与三阶段评审方法论-ReasoningBank推理产出.md
+status: shadow

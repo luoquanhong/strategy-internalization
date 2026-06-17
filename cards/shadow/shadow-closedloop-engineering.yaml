@@ -1,0 +1,21 @@
+id: shadow-closedloop-engineering
+title: 闭环式工程保障体系
+scenario_tags:
+- system_design
+trigger_keywords:
+- 闭环
+- 事前事中事后
+- 容量评估
+- 灰度
+- 熔断
+- 复盘
+- 根因
+- P0
+- 技术债
+actions:
+- 事前重防御：容量评估、预案准备
+- 事中重管控：灰度控制、实时多维监控、熔断降级
+- 事后重演进：复盘机制、根因分析、架构修缮
+priority: 8
+source: insights/2026-06-14-智能路由上生产全流程与P0修缮-ReasoningBank推理产出.md
+status: shadow

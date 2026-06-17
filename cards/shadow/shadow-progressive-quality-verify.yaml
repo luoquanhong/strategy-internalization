@@ -1,0 +1,22 @@
+id: shadow-progressive-quality-verify
+title: 渐进式质量验证与动态风控
+scenario_tags:
+- system_design
+- test
+trigger_keywords:
+- 渐进
+- 灰度
+- 爆炸半径
+- 流量切分
+- 多维探针
+- 假设验证
+- 回滚
+- 增量发布
+actions:
+- 控制爆炸半径：流量切分或环境隔离，小范围验证假设
+- 多维状态感知：基础设施到业务逻辑多层级探针交叉验证
+- 动态调整建立基线，预设快速回滚策略
+- 将全局变更切分为逻辑独立增量单元渐进上线
+priority: 8
+source: insights/2026-06-14-OpenViking门户优化与工程方法论-ReasoningBank推理产出.md; 2026-06-14-智能路由部署与标记注入工程-ReasoningBank推理产出.md
+status: shadow

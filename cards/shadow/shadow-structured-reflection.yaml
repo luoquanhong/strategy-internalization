@@ -1,0 +1,26 @@
+id: shadow-structured-reflection
+title: 结构化反思替代直觉
+scenario_tags:
+- system_design
+- review
+trigger_keywords:
+- 凭感觉
+- 非结构化
+- 反思框架
+- 3W
+- 深度推理
+- 经验提炼
+- 浅层报告
+- 思维框架
+- 强制框架
+- 知识提取
+- 认知约束
+actions:
+- 识别当前输出是否为凭感觉或非结构化产物
+- 引入思维框架（如3W：为什么发生/学到什么/下次怎么办）
+- 将框架固化为Skill模板，强制每次完整回答框架内问题
+- 用框架约束发散思维，将浅层报告转化为深度推理产出
+- 定期检查产出质量，若流于表面则回溯是否缺少结构化约束
+priority: 7
+status: shadow
+source: insights/策略-结构化反思替代直觉.md; insights/记忆系统建设过程梳理与ReasoningBank提炼.md

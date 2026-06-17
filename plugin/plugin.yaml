@@ -1,0 +1,6 @@
+name: strategy-injection
+version: "1.0.0"
+description: "策略内化层 — LLM 调用前自动检索并注入策略卡（GPT-5.5 P0 定稿：保守注入 + 强边界伪通道隔离 + 生命周期门控）。纯规则零 token，闲聊不触发。"
+author: "Hermes Agent (牧歌)"
+provides_hooks:
+  - pre_llm_call

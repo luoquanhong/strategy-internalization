@@ -1,0 +1,26 @@
+id: shadow-hypothesis-verify-callback
+title: 假设验证与动态回调
+scenario_tags:
+- system_design
+- test
+- cost_safety
+trigger_keywords:
+- 参数调优
+- 假设验证
+- 动态回调
+- 基线测试
+- 沙盒验证
+- 反馈调整
+- 降级分流
+- 效率质量平衡
+- 试错迭代
+- 压缩率
+actions:
+- 设定初始参数时建立基线数据
+- 在沙盒或受限环境进行端到端测试
+- 发现策略过于激进或存在损耗时立即动态回调
+- 必要时执行降级分流保证质量底线
+- 形成假设-测试-反馈-调整闭环
+priority: 7
+status: shadow
+source: insights/策略-假设验证与动态回调.md; insights/记忆系统建设过程梳理与ReasoningBank提炼.md

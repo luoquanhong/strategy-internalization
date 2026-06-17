@@ -1,0 +1,22 @@
+id: shadow-module-decouple-feedback
+title: 模块化解耦与反馈闭环
+scenario_tags:
+- system_design
+trigger_keywords:
+- 模块化
+- 正交解耦
+- 感知
+- 调度
+- 执行
+- 质量控制
+- 监控点
+- 自适应
+- 静态规则
+actions:
+- 拆分为感知/调度/执行/质量控制等正交解耦独立模块
+- 数据交接处设监控点收集成功率/延迟/资源消耗
+- 用真实反馈数据动态调整路由阈值和评审基线
+- 实现从静态规则向自适应演进
+priority: 7
+source: insights/2026-06-14-智能路由方案设计与双模型评审-ReasoningBank推理产出.md
+status: shadow

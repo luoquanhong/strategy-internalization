@@ -1,0 +1,20 @@
+id: shadow-scenario-generalize-map
+title: 场景经验泛化映射
+scenario_tags:
+- system_design
+- review
+trigger_keywords:
+- 泛化
+- 降维抽象
+- 横切关注点
+- 去业务化
+- 通用方法论
+- 表现层
+- 逻辑调度层
+actions:
+- 剥离特定业务术语和工具依赖，抽象为通用架构层
+- 以工程协作视角整合横切关注点，形成跨领域方法论
+- 从具体实践中提炼可泛化模式
+priority: 7
+source: insights/2026-06-14-OpenViking门户优化与工程方法论-ReasoningBank推理产出.md
+status: shadow

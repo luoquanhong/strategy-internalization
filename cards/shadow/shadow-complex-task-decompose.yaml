@@ -1,0 +1,21 @@
+id: shadow-complex-task-decompose
+title: 复杂抽象任务需先拆解再执行
+scenario_tags:
+- system_design
+- bug_fix
+trigger_keywords:
+- 拆解
+- 抽象
+- 复杂任务
+- 多维度
+- 宏观
+- 认知过载
+- 空转
+- 规划
+actions:
+- 面对多抽象维度的复杂查询，先做前置任务规划再执行
+- 不拆解直接执行会导致认知过载和流程阻断
+- 把宏大多维任务拆成可执行子域再逐一推进
+priority: 8
+source: insights/2026-06-13-Anthropic适配与策略落地卡点-ReasoningBank推理产出.md; 2026-06-13-框架评估与方案迭代方法论-ReasoningBank推理产出.md
+status: shadow

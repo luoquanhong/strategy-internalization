@@ -1,0 +1,22 @@
+id: shadow-hard-circuit-breaker
+title: 硬性熔断阻断放大效应
+scenario_tags:
+- cost_safety
+- system_design
+trigger_keywords:
+- 熔断
+- 烧钱
+- 预算
+- 上限
+- 循环
+- 失控
+- 按量计费
+- 重试
+- 放大
+actions:
+- 识别链路中的资源消耗节点，设独立于业务逻辑的硬阈值
+- 软性提示约束不可靠，必须在执行流外设计物理级中断
+- 总开销上限+高频次调用限制+总运行时长三道闸门
+priority: 9
+source: insights/2026-06-15-AIAgent上下文饱和循环烧钱事故防护-ReasoningBank推理产出.md
+status: shadow

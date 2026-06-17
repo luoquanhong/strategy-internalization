@@ -1,0 +1,20 @@
+id: shadow-trust-in-troubleshoot
+title: 故障排查信任维护
+scenario_tags:
+- bug_fix
+trigger_keywords:
+- 排查
+- '500'
+- 信任
+- 猜测
+- 无效方案
+- 复现
+- 信息收集
+- 系统性
+actions:
+- 排查故障不盲目猜测或提供未经验证方案
+- 先充分收集信息再分析原因，反复无效方案会丧失信任
+- 建立系统性排查方法论而非试错
+priority: 8
+source: insights/2026-06-13-工程交付完整教训-ReasoningBank推理产出.md
+status: shadow

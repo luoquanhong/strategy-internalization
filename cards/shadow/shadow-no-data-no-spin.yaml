@@ -1,0 +1,20 @@
+id: shadow-no-data-no-spin
+title: 无数据支撑拒绝空转
+scenario_tags:
+- bug_fix
+- system_design
+trigger_keywords:
+- 空转
+- 捏造
+- 无数据
+- 凭空
+- 缺上下文
+- 经验总结
+- 通用知识
+actions:
+- 缺关键上下文（审查记录、修复日志）时拒绝凭空捏造策略
+- 不要依赖通用知识编造具体业务经验，结果脱离实际
+- 明确告知信息不足而非静默失败
+priority: 8
+source: insights/2026-06-13-Anthropic适配与策略落地卡点-ReasoningBank推理产出.md
+status: shadow

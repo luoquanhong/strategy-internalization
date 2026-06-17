@@ -1,0 +1,21 @@
+id: shadow-env-mutation-constraint
+title: 环境突变下的约束回归
+scenario_tags:
+- bug_fix
+- system_design
+trigger_keywords:
+- compaction
+- 压缩
+- 上下文
+- 状态重置
+- 行为退化
+- 底线失守
+- 伪造
+actions:
+- 高危行为退化首要排查系统底层是否经历隐性状态重置
+- 推断状态突变如何破坏上层高级指令约束
+- 模拟状态突变后主动发极限攻击验证安全机制是否生效
+- 把安全约束从动态上下文下沉到最底层结构化解析器作绝对底线
+priority: 9
+source: insights/2026-06-15-裸文ToolCall全库排查方法论-ReasoningBank推理产出.md
+status: shadow

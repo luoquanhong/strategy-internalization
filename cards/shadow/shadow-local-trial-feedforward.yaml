@@ -1,0 +1,22 @@
+id: shadow-local-trial-feedforward
+title: 以局部试错反哺系统架构
+scenario_tags:
+- system_design
+- bug_fix
+trigger_keywords:
+- 调研事故
+- 烧钱
+- 升维
+- 探针
+- 系统级模式
+- 反哺
+- 限流
+- 缓存
+- 熔断
+actions:
+- 把具体业务方案调研/测试过程视为系统级架构健康度的探针
+- 局部调研触发事故时不止修补业务，升维提取背后的系统级模式
+- 把单次方案失败经验转化为推动全局架构健壮性升级的驱动力
+priority: 8
+source: insights/2026-06-15-ML分类器方案演进与三阶段评审方法论-ReasoningBank推理产出.md
+status: shadow

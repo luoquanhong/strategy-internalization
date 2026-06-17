@@ -1,0 +1,26 @@
+id: shadow-optimize-closedloop-verify
+title: 优化效果闭环验证
+scenario_tags:
+- test
+- cost_safety
+trigger_keywords:
+- 优化验证
+- 闭环验证
+- 效果确认
+- 基准对比
+- 量化对比
+- 优化前后
+- 改善数值
+- 假设执行
+- 数据对比
+- 指标测量
+- 保真率
+actions:
+- 实施优化动作前先记录基准数据
+- 优化后重新测量相关指标
+- 与优化前基准进行量化对比
+- 输出具体改善数值（如节省百分比或绝对数量）
+- 形成分析-假设-执行-验证完整闭环
+priority: 7
+status: shadow
+source: insights/策略-优化效果闭环验证.md

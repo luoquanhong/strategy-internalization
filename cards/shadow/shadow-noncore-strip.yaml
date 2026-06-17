@@ -1,0 +1,26 @@
+id: shadow-noncore-strip
+title: 非核心模块剥离法
+scenario_tags:
+- system_design
+- cost_safety
+trigger_keywords:
+- 资源消耗
+- 非核心
+- 模块剥离
+- 降级
+- 性能优化
+- 功能矩阵
+- 核心业务
+- 辅助功能
+- 资源超限
+- 成本收益
+- 剥离禁用
+actions:
+- 评估系统功能矩阵，区分核心业务逻辑与辅助功能
+- 识别资源消耗大但对核心目标贡献度低的模块
+- 对非核心模块采取降级或限制触发条件
+- 必要时直接剥离禁用最耗资源的非核心功能
+- 以最小业务损伤换取最大性能或成本收益
+priority: 6
+status: shadow
+source: insights/策略-非核心模块剥离法.md

@@ -1,0 +1,27 @@
+id: shadow-data-driven-route-feedback
+title: 数据驱动闭环反馈设计
+scenario_tags:
+- system_design
+- test
+- cost_safety
+trigger_keywords:
+- 数据驱动
+- 路由迭代
+- 闭环反馈
+- 质量得分
+- 路由准确率
+- 规则迭代
+- 运行数据
+- 静态规则
+- 审计路由
+- 拍脑袋
+- 实际成本
+actions:
+- 路由上线后收集每类任务实际质量得分、成本、延迟
+- 定期审计路由准确率
+- 用真实数据驱动规则迭代，不凭经验调参
+- 建立质量-成本-延迟的多维数据基线
+- 静态规则必须过渡到数据驱动的动态迭代
+priority: 7
+status: shadow
+source: insights/智能路由方案迭代-ReasoningBank推理产出.md

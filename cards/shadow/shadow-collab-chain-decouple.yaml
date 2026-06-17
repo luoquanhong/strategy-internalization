@@ -1,0 +1,21 @@
+id: shadow-collab-chain-decouple
+title: 复杂协作链路契约驱动解耦
+scenario_tags:
+- system_design
+trigger_keywords:
+- 协作
+- 多节点
+- 契约驱动
+- 边界防御
+- 解耦
+- 单点故障
+- 异步
+- 降级
+- 熔断
+actions:
+- 明确各协作节点输入输出契约，标准化协议降低强耦合
+- 预演单点故障场景，推导异步解耦、降级或熔断策略
+- 保障全局核心链路的健壮性
+priority: 7
+source: insights/2026-06-14-OpenViking门户优化与工程方法论-ReasoningBank推理产出.md
+status: shadow

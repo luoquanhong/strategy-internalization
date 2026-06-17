@@ -1,0 +1,22 @@
+id: shadow-contract-defensive-parse
+title: 契约驱动的防御性解析
+scenario_tags:
+- system_design
+- bug_fix
+trigger_keywords:
+- 零信任
+- 契约
+- 数据校验
+- 前置
+- 降级
+- 重试
+- 非结构化
+- 第三方
+- 健壮性
+actions:
+- 以零信任为前提，数据格式校验前置于核心逻辑
+- 为跨模块/跨系统交互定义强类型契约
+- 异常输入必须有兜底降级或重试策略
+priority: 8
+source: insights/2026-06-14-流式裸文Bug调试与AB反向验证-ReasoningBank推理产出.md
+status: shadow

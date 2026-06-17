@@ -1,0 +1,20 @@
+id: shadow-multilevel-route-feedback
+title: 多级路由与反馈纠偏
+scenario_tags:
+- system_design
+trigger_keywords:
+- 路由
+- 意图
+- 规则前置
+- 语义兜底
+- 纠偏
+- 闭环
+- code_review
+- 分发
+actions:
+- 强意图高频场景建确定性规则映射（规则前置）
+- 规则未命中时基于意图相似度模糊分发（语义兜底）
+- 结合闭环纠偏持续修正路由准确率
+priority: 8
+source: insights/2026-06-14-DeepSeek兼容性与code_review路由问题-ReasoningBank推理产出.md
+status: shadow

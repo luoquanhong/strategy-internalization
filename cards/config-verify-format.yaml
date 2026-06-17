@@ -1,0 +1,18 @@
+actions:
+- 改配置前先验明格式
+- 用校验工具检查语法
+- 备份后再改
+id: config-verify-format
+priority: 8
+scenario_tags:
+- ops_config
+status: active
+title: 变更配置须先验明格式
+trigger_keywords:
+- 配置
+- config
+- 格式
+- yaml
+- 语法
+- 校验
+- 变更
