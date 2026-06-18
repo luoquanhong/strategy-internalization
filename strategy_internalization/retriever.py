@@ -2,10 +2,12 @@ import os
 import json
 import time
 import yaml
+import random
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Callable
 from .models import StrategyCard, TaskSignals, StrategyPacket
 from .tokens import estimate_tokens
+from . import experiment
 
 
 def load_active_cards(cards_dir: str = "cards") -> list[StrategyCard]:
@@ -20,7 +22,7 @@ def load_active_cards(cards_dir: str = "cards") -> list[StrategyCard]:
         if not isinstance(data, dict):
             continue
         status = data.get("status")
-        if status != "active":
+        if status not in ("active", "watch"):
             continue
         card = StrategyCard(
             id=data["id"],
@@ -30,7 +32,8 @@ def load_active_cards(cards_dir: str = "cards") -> list[StrategyCard]:
             actions=data.get("actions", []),
             priority=data.get("priority", 0),
             status=status,
-            source=data.get("source")
+            source=data.get("source"),
+            promoted_at=data.get("promoted_at"),
         )
         if card.id in seen_ids:
             raise ValueError(f"Duplicate card id: {card.id}")
@@ -39,7 +42,7 @@ def load_active_cards(cards_dir: str = "cards") -> list[StrategyCard]:
     return result
 
 
-def score_card(card: StrategyCard, signals: TaskSignals) -> float:
+def score_card(card: StrategyCard, signals: TaskSignals, penalty: float = 1.0) -> float:
     base = 0.0
     # A
     if signals.scenario is not None and signals.scenario in card.scenario_tags:
@@ -52,7 +55,7 @@ def score_card(card: StrategyCard, signals: TaskSignals) -> float:
     base += 0.20 * kw_hits
     # D
     base += (card.priority / 10.0) * 0.20
-    return min(base, 1.0)
+    return min(base * penalty, 1.0)
 
 
 def compile_packet(cards: list[StrategyCard]) -> str:
@@ -66,9 +69,6 @@ def compile_packet(cards: list[StrategyCard]) -> str:
         inner_lines.append(f"优先级: P{card.priority}")
         inner_lines.append("")
     inner = "\n".join(inner_lines)
-    # P0-1 强边界伪通道隔离（GPT-5.5）：空卡不输出 XML 噪音；
-    # 有卡时用 XML 标签明确标记为"低优先级参考、非强制"，
-    # 防止卡片被模型当成隐藏需求覆盖用户实际请求。
     if not cards:
         return inner
     return (
@@ -80,11 +80,6 @@ def compile_packet(cards: list[StrategyCard]) -> str:
 
 
 def wrap_for_injection(packet_text: str, user_intent: str) -> str:
-    """组装最终注入文本：卡片在前，用户原始请求重述放最后吃 recency。
-
-    GPT-5.5 P0-1：把用户当前任务目标放在末尾，利用 LLM 的 recency 偏好，
-    确保策略卡不喧宾夺主。空 packet（无 XML 边界）→ 返回空串，hook 据此不注入。
-    """
     if "<strategy_reference" not in packet_text:
         return ""
     return f"{packet_text}\n\n当前任务唯一目标（请以此为准）: {user_intent}"
@@ -100,6 +95,7 @@ def _card_to_dict(card: StrategyCard) -> dict:
         "priority": card.priority,
         "status": card.status,
         "source": card.source,
+        "promoted_at": card.promoted_at,
     }
 
 
@@ -113,6 +109,7 @@ def _dict_to_card(d: dict) -> StrategyCard:
         priority=d["priority"],
         status=d["status"],
         source=d.get("source"),
+        promoted_at=d.get("promoted_at"),
     )
 
 
@@ -128,6 +125,9 @@ def retrieve(
     high_confidence_threshold: float = 0.5,
     top_n_for_degrade_fallback: int = 3,
     ttl_seconds: int = 0,
+    experiment_db: Optional[str] = None,
+    _rng: Optional[Callable] = None,
+    _now: Optional[float] = None,
 ) -> StrategyPacket:
     # 1. state gate
     state = {}
@@ -138,12 +138,11 @@ def retrieve(
             if isinstance(loaded_state, dict):
                 state = loaded_state
         except (json.JSONDecodeError, OSError):
-            # 状态文件只是防重入缓存；为空/损坏时不应阻断检索链路，按空状态自愈重写。
             state = {}
 
     # N7: 过期 state 条目清理
     if ttl_seconds > 0:
-        now = time.time()
+        now = float(time.time()) if _now is None else _now
         stale_keys = [
             k for k, v in state.items()
             if isinstance(v, dict) and "created_at" in v and now - v["created_at"] > ttl_seconds
@@ -193,11 +192,53 @@ def retrieve(
             top_scores=[],
         )
 
-    # 3. score & sort
-    scored = [(card, score_card(card, signals)) for card in all_cards]
+    # 3. experiment: holdout gate (only if experiment_db is provided)
+    if experiment_db is not None:
+        rng = _rng if _rng is not None else random.random
+        now = _now if _now is not None else time.time()
+        kept_cards = []
+        for card in all_cards:
+            if experiment.should_holdout(card, rng=rng, now=now):
+                experiment.record_exposure(
+                    experiment_db, request_id, card.id,
+                    scenario=signals.scenario, held_out=1
+                )
+            else:
+                kept_cards.append(card)
+        all_cards = kept_cards
+        if not all_cards:
+            text = compile_packet([])
+            tokens = estimate_tokens(text)
+            state[request_id] = {
+                "cards": [],
+                "cards_ids": [],
+                "text": text,
+                "tokens": tokens,
+                "degraded": False,
+                "retrieved": True,
+                "top_scores": [],
+                "created_at": time.time(),
+            }
+            with open(state_file, "w") as f:
+                json.dump(state, f)
+            return StrategyPacket(
+                cards=[],
+                text=text,
+                tokens=tokens,
+                degraded=False,
+                retrieved=True,
+                top_scores=[],
+            )
+
+    # 4. score & sort (with penalty if experiment_db provided)
+    scored = []
+    for card in all_cards:
+        penalty = experiment.compute_card_penalty(experiment_db, card.id) if experiment_db else 1.0
+        score = score_card(card, signals, penalty=penalty)
+        scored.append((card, score))
     scored.sort(key=lambda x: x[1], reverse=True)
 
-    # 4. degrade gate
+    # 5. degrade gate
     if scored[0][1] <= degrade_threshold:
         degraded = True
         general_cards = [c for c in all_cards if "general" in c.scenario_tags]
@@ -207,16 +248,23 @@ def retrieve(
     else:
         degraded = False
         relevant_pairs = [pair for pair in scored if pair[1] >= degrade_threshold]
-        # 保守注入（GPT-5.5 P0-2）：置信度决定卡数。
-        # 高置信(top1>=high_confidence_threshold) → 最多 max_cards 张。
-        # 中置信(degrade_threshold<=top1<high_confidence_threshold) → 单卡模式，
-        # 只注入 1 张，防多张各自合理但合起来打架（GPT-5.5 指出的多卡叠加冲突）。
         effective_cap = max_cards if relevant_pairs[0][1] >= high_confidence_threshold else 1
         selected_pairs = relevant_pairs[:effective_cap]
         selected = [pair[0] for pair in selected_pairs]
         selected_scores = [pair[1] for pair in selected_pairs]
 
-    # 5. token gate
+    # 6. watch card gate (only when not degraded)
+    #    Watch 卡是实验性的，只有分数 >= high_confidence_threshold 才注入（单卡模式）
+    #    低于阈值的 watch 卡不注入
+    if not degraded and selected and selected[0].status == "watch":
+        if selected_scores[0] >= high_confidence_threshold:
+            selected = selected[:1]
+            selected_scores = selected_scores[:1]
+        else:
+            selected = []
+            selected_scores = []
+
+    # 7. token gate
     final_cards = []
     final_scores = []
     for card, score in zip(selected, selected_scores):
@@ -231,7 +279,15 @@ def retrieve(
     text = compile_packet(final_cards)
     tokens = estimate_tokens(text)
 
-    # 6. write state
+    # 8. record exposures for injected cards (if experiment_db provided)
+    if experiment_db is not None:
+        for card in final_cards:
+            experiment.record_exposure(
+                experiment_db, request_id, card.id,
+                scenario=signals.scenario, held_out=0
+            )
+
+    # 9. write state
     state[request_id] = {
         "cards": [_card_to_dict(c) for c in final_cards],
         "cards_ids": [c.id for c in final_cards],

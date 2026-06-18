@@ -230,6 +230,7 @@ for k in sorted(s.keys()):
 | `strategy_internalization/signal_extractor.py` | Pure-rule signal extraction | Tuning matching / adding scenario keywords |
 | `strategy_internalization/lifecycle.py` | Five-state card lifecycle | Card promotion / quarantine |
 | `strategy_internalization/feedback_log.py` | Negative-feedback log | Future scoring (currently log-only, no learning) |
+| `strategy_internalization/experiment.py` | P1 experiment framework: holdout A/B, penalty scoring, exposure tracking | Analyzing injection effectiveness, tuning holdout/penalty params |
 | `plugin/__init__.py` | pre_llm_call callback | Changing hook behavior |
 | `cards/*.yaml` | Active card data | Adding / modifying strategies |
 | `cards/shadow/*.yaml` | Candidate cards | Observe before promotion |
@@ -511,6 +512,7 @@ for k in sorted(s.keys()):
 | `strategy_internalization/signal_extractor.py` | 纯规则信号提取 | 调匹配 / 加场景关键词 |
 | `strategy_internalization/lifecycle.py` | 卡片五态流转 | 卡片晋升 / 隔离 |
 | `strategy_internalization/feedback_log.py` | 负反馈日志 | 后续做评分（当前只记不学）|
+| `strategy_internalization/experiment.py` | P1 实验框架：holdout 对照 + penalty 降权 + 曝光记录 | 分析注入效果、调 holdout/penalty 参数 |
 | `plugin/__init__.py` | pre_llm_call 回调 | 改 hook 行为 |
 | `cards/*.yaml` | active 卡数据 | 加 / 改策略 |
 | `cards/shadow/*.yaml` | 候选卡 | 晋升前观察 |

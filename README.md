@@ -27,6 +27,7 @@ A **pure-Python control plane** that compresses engineering experience into ligh
 | Zero-cost for chitchat | Signal extraction returns `None` → no injection, no tokens consumed |
 | Strong boundary isolation | Cards wrapped in XML tags + user's original request repeated at the end to win recency — never overrides user intent |
 | Conservative injection | Default cap: 2 cards / 300 tokens. Falls back to single-card mode when confidence is low |
+| **P1: Experiment framework** | holdout A/B validation (15% of new/watch cards held out as control) + penalty scoring (negative-feedback rate down-weights cards) + exposure tracking (every injection logged to SQLite for offline analysis) |
 | Fail-open | Engine exceptions are logged, never interrupt the conversation. Shield-first design |
 | **Zero source-code changes** | Entirely implemented via Hermes Agent's plugin mechanism |
 
@@ -47,13 +48,14 @@ strategy-internalization/
 │   ├── signal_extractor.py        Pure-rule signal extraction
 │   ├── lifecycle.py               Five-state card lifecycle (draft→active→retired)
 │   ├── feedback_log.py            SQLite negative-feedback log (log first, learn later)
+│   ├── experiment.py              P1: holdout A/B + penalty scoring + exposure tracking
 │   ├── models.py                  Data structures
 │   └── tokens.py                  Token estimation
 ├── cards/                         Strategy cards
 │   ├── concern-separation.yaml    9 active cards, ready to use
 │   ├── ...
 │   └── shadow/                    Candidate cards (promoted before injection)
-├── tests/                         Tests (95 passed)
+├── tests/                         Tests (143 passed)
 ├── plugin/                        Hermes Agent plugin
 │   ├── __init__.py                pre_llm_call callback
 │   ├── plugin.yaml                Plugin manifest
@@ -82,7 +84,7 @@ cd strategy-internalization
 # Install dependencies
 pip install -r requirements.txt
 
-# Run tests to verify (95 passed = environment is good)
+# Run tests to verify (143 passed = environment is good)
 pytest tests/ -v
 ```
 
@@ -263,7 +265,7 @@ This strategy-internalization layer went through a full production hardening cyc
 - Multi-model TDD workflow (models took turns writing tests → review → implement)
 - Six-category sanitization before pushing to public GitHub
 - Real-world validation: miss rate went from ≈100% (Skill soft-match) to 0% (code-level hook)
-- 95 TDD tests with A/B reverse validation
+- 143 TDD tests with A/B reverse validation
 
 It was battle-tested in production, not a proof of concept.
 
@@ -298,6 +300,7 @@ It was battle-tested in production, not a proof of concept.
 | 闲聊零开销 | 提取信号返回 None → 不注入，不消耗 token |
 | 强边界隔离 | XML 标签包裹卡片 + 用户请求重述吃 recency，不干扰原始意图 |
 | 保守注入 | 默认最多 2 张卡 / 300 token，置信度不够自动单卡 |
+| **P1：实验框架** | holdout A/B 对照（15% 新卡/watch 卡留作对照组）+ penalty 降权（负反馈率高的卡自动降权）+ 曝光记录（每次注入写入 SQLite，可离线分析效果）|
 | fail-open | 引擎异常只记日志不中断对话，盾牌前置 |
 | **零改源码** | 全部通过 Hermes 插件机制实现 |
 
@@ -318,13 +321,14 @@ strategy-internalization/
 │   ├── signal_extractor.py        纯规则信号提取
 │   ├── lifecycle.py               卡片五态生命周期（draft→active→retired）
 │   ├── feedback_log.py            SQLite 负反馈日志（先记不学）
+│   ├── experiment.py              P1：holdout 对照 + penalty 降权 + 曝光记录
 │   ├── models.py                  数据结构
 │   └── tokens.py                  token 估算
 ├── cards/                         策略卡
 │   ├── concern-separation.yaml    active 卡（9 张开箱即用）
 │   ├── ...
 │   └── shadow/                    候选卡（需晋升后才注入）
-├── tests/                         测试（95 passed）
+├── tests/                         测试（143 passed）
 ├── plugin/                        Hermes Agent 插件
 │   ├── __init__.py                pre_llm_call 回调
 │   ├── plugin.yaml                插件 manifest
@@ -353,7 +357,7 @@ cd strategy-internalization
 # 装依赖
 pip install -r requirements.txt
 
-# 跑测试验证（95 passed，证明环境正常）
+# 跑测试验证（143 passed，证明环境正常）
 pytest tests/ -v
 ```
 

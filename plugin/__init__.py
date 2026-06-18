@@ -1,9 +1,11 @@
-"""策略注入插件 — pre_llm_call hook（GPT-5.5 P0 定稿）。
+"""策略注入插件 — pre_llm_call hook（P0 定稿 + P1 实验框架集成）。
 
 把策略内化层焊进 LLM 调用前的代码层入口，Agent 无法跳过。
 - 闲聊：extract_signals 返回 None → 不注入，零开销
 - 命中：retrieve（保守注入 max_cards=2/max_tokens=300 + 中置信单卡）
         → wrap_for_injection（XML 强边界 + 用户原始请求重述吃 recency）
+- P1 实验：experiment_db 传入 retrieve → holdout 分流 + penalty 降权 + 曝光记录
+           mark_stale_exposures_as_retry → 超时无 outcome 的曝光推定为 retry
 - fail-open：任何异常只记日志不中断对话（外层 conversation_loop 已兜，内层再保一道）
 
 零改源码：插件放 ~/.hermes/plugins/，config.yaml 的 plugins.enabled 启用。
@@ -41,6 +43,7 @@ def _find_engine():
 _ENGINE_PATH = _find_engine()
 _CARDS = os.path.join(_ENGINE_PATH, "cards")
 _STATE = os.path.join(_ENGINE_PATH, "retrieval_state.json")
+_DB = os.path.join(_ENGINE_PATH, "experiment.db")  # P1 实验数据库
 
 if _ENGINE_PATH not in sys.path:
     sys.path.insert(0, _ENGINE_PATH)
@@ -62,6 +65,13 @@ def _pre_llm_call(*, user_message=None, **kwargs):
             get_request_id,
         )
         from strategy_internalization.retriever import retrieve, wrap_for_injection
+        from strategy_internalization import experiment
+
+        # P1: 初始化实验 DB + 标记超时曝光为 retry
+        experiment.init_db(_DB)
+        stale = experiment.mark_stale_exposures_as_retry(_DB)
+        if stale:
+            logger.info("strategy-injection: marked %d stale exposure(s) as retry", stale)
 
         msg = str(user_message)
         sig = extract_signals(msg, cards_dir=_CARDS)
@@ -73,6 +83,7 @@ def _pre_llm_call(*, user_message=None, **kwargs):
             cards_dir=_CARDS,
             state_file=_STATE,
             request_id=get_request_id(msg),
+            experiment_db=_DB,  # P1: 启用 holdout/penalty/曝光记录
         )
         if not packet.cards:
             return {}

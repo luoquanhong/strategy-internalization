@@ -25,3 +25,6 @@ Thumbs.db
 tests/.review_round*.md
 tests/.writer_raw*.md
 tests/.executor_raw*.md
+
+# 实验数据库（运行时生成，含真实曝光数据）
+*.db

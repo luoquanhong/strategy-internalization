@@ -27,12 +27,14 @@ def test_valid_statuses_cover_five_states():
         assert s in VALID_STATUSES
 
 
-def test_only_active_injectable_in_p0():
-    """P0 最保守：只有 active 注入。"""
+def test_injectable_statuses_p1():
+    """P1: active + watch 可降权注入；draft/quarantine/retired 不注入。
+    旧合同(P0 only-active) → 新合同(P1 active+watch)，watch 降权逻辑在 retriever。"""
     assert is_injectable("active") is True
-    for s in ["draft", "watch", "quarantine", "retired"]:
+    assert is_injectable("watch") is True   # P1 升级
+    for s in ["draft", "quarantine", "retired"]:
         assert is_injectable(s) is False
-    assert INJECTABLE_STATUSES == {"active"}
+    assert INJECTABLE_STATUSES == {"active", "watch"}
 
 
 def test_user_reject_immediate_quarantine():

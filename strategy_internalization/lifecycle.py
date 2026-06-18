@@ -23,8 +23,8 @@ VALID_STATUSES = frozenset({
     "shadow", "archived",
 })
 
-# P0 最保守：只有 active 注入到 LLM packet
-INJECTABLE_STATUSES = {"active"}
+# P1: active + watch 可注入（watch 降权逻辑在 retriever；P0 只有 active 最保守）
+INJECTABLE_STATUSES = {"active", "watch"}
 
 # 流转阈值（GPT-5.5 建议值，均可由 cron 配置覆盖）
 NEGATIVE_TO_WATCH_THRESHOLD = 3       # active 负反馈累计达此值 → watch

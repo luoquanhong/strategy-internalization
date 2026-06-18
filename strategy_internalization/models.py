@@ -11,6 +11,7 @@ class StrategyCard:
     priority: int
     status: str
     source: Optional[str] = None
+    promoted_at: Optional[float] = None   # P1 新增：晋升时间戳(epoch)，用于判断新卡观察期
 
 @dataclass
 class TaskSignals:
@@ -26,3 +27,8 @@ class StrategyPacket:
     degraded: bool
     retrieved: bool
     top_scores: list[float]
+
+    @property
+    def cards_ids(self) -> list[str]:
+        """便捷访问：注入卡的 id 列表（P1 测试用）。"""
+        return [c.id for c in self.cards]
