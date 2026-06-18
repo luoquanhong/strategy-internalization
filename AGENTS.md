@@ -1,3 +1,289 @@
+# AGENTS.md — Strategy Internalization Onboarding Guide (for AI Agents)
+
+> This document is for AI Agents (Hermes, Claude Code, or other LLM orchestration systems) to read when they receive tasks like "integrate strategy injection" or "make the Agent auto-apply experience."
+
+---
+
+English | [中文版](#中文版)
+
+---
+
+## What This Is, and What Pain It Solves
+
+**The pain**: Experience, lessons learned, and best practices are already written down in docs, issues, and post-mortems — but when the Agent is doing real work, it **never actively remembers to use them**. It learns the same lesson the hard way, every single time.
+
+**This project's solution**: Compress experience into lightweight cards, then automatically select the most relevant ones and stuff them into the prompt **before** the LLM call — using code. The Agent has no "skip" option — this is a code-level hook, not relying on the Agent's memory or willpower.
+
+### Core Mechanism (required reading)
+
+This is **control-plane** thinking, not a memory system:
+
+```
+Wrong mental model:   store experience → Agent "remembers" → recalls it like a human
+Correct mental model: offline pre-compile experience into short cards →
+                       before every call, code picks a few and stuffs them in
+```
+
+The Agent only consumes finished cards. It does not search a knowledge base online, nor does it decide how many items to read. This avoids two fatal problems:
+1. **Context death spiral** (letting an LLM read a knowledge base online = infinite money burn)
+2. **Growth rot** (experience grows without bound, but the amount injected into the main context stays capped and controllable)
+
+---
+
+## Two Usage Scenarios (decide which one you are)
+
+### Scenario A: Pure Strategy Injection (default, recommended)
+
+**Goal**: Let the Agent see distilled experience cards before technical tasks.
+
+**Prerequisites**:
+- Python 3.10+
+- Hermes Agent (the plugin depends on Hermes' native `pre_llm_call` hook; other systems need to implement an equivalent hook themselves)
+- **No** OpenViking, **no** ReasoningBank required
+
+**Why**: The repo ships with 9 battle-hardened active strategy cards (covering bug_fix / system_design / ops_config / refactor etc.), ready to use out of the box.
+
+### Scenario B: Full Experience-Internalization Loop
+
+**Goal**: Let the Agent continuously accumulate experience at work and automatically distill it into new strategy cards.
+
+**Prerequisites**: Everything from Scenario A, plus these 3 components:
+
+| Component | Responsibility | Key Output |
+|-----------|---------------|------------|
+| OpenViking | Knowledge base | Long-form experience articles in the insights/ directory |
+| ReasoningBank | Reasoning framework | Distills generalizable strategies from work traces |
+| Scheduled sync job | Cron / Hermes job | Scans insights/ → generates shadow cards |
+
+**Full data flow**:
+```
+Work traces → ReasoningBank inference → OpenViking insights/
+   → (cron scheduled sync) → shadow cards (observed, NOT injected)
+   → (promote after stabilization) → active cards → hook auto-injects
+```
+
+**⚠️ Critical note**: This repo is **only responsible for the final step** (active cards → injection). OpenViking, ReasoningBank, and the cron sync job are all upstream and NOT part of this repo. You can produce strategy cards however you like, as long as they are valid `.yaml` files placed under `cards/`.
+
+---
+
+## Integrating with Hermes Agent (Scenario A step-by-step)
+
+### Step 1: Clone the repo
+
+```bash
+git clone https://github.com/luoquanhong/strategy-internalization.git
+cd strategy-internalization
+pip install -r requirements.txt
+pytest tests/ -v   # should show 95 passed
+```
+
+### Step 2: Install the plugin
+
+```bash
+# Copy the plugin to Hermes' plugin directory
+mkdir -p $HOME/.hermes/plugins
+cp -r plugin $HOME/.hermes/plugins/strategy-injection
+```
+
+### Step 3: Enable the plugin
+
+```bash
+# Option 1: Use the provided script (recommended — auto-backs up config)
+bash $HOME/.hermes/plugins/strategy-injection/enable.sh
+
+# Option 2: Manually edit config.yaml
+# In ~/.hermes/config.yaml, add:
+#   plugins:
+#     enabled:
+#       - strategy-injection
+# Then: systemctl --user restart hermes-gateway
+```
+
+### Step 4: Verify
+
+```bash
+# Plugin status
+hermes plugins list | grep strategy-injection
+# Should show "enabled"
+
+# Send a technical message (e.g. "help me debug this API error")
+# then check the state file
+python3 -c "
+import json
+s = json.load(open('retrieval_state.json'))
+print(f'Records: {len(s)}')
+for k,v in list(s.items())[-3:]:
+    print(f'  {v.get(\"scenario\")}: {[c[\"id\"] for c in v.get(\"cards\",[])]}')
+"
+```
+
+### ⚠️ Gateway restart deadlock (pitfall alert)
+
+Running `systemctl --user restart hermes-gateway` from inside a Hermes gateway session will hang — the gateway waits for the current session to end, while the session waits for the gateway. **This is not a bug**: after the drain timeout (default 180s), the new process takes over automatically.
+
+**Correct approach**: After issuing the restart, wait a few seconds and let the user send the *next* message. That message will run on the new process and you can verify the hook is active. The current message cannot verify itself.
+
+---
+
+## The Card System (what an Agent needs to know for debugging)
+
+### Card format (cards/*.yaml)
+
+```yaml
+id: param-no-blind-est                  # unique identifier
+title: Don't Blind-Estimate Parameters  # ≤20 chars
+scenario_tags: [ops_config, bug_fix]    # scenario (determines matching)
+trigger_keywords: [parameter, resource, estimate, measure]  # trigger keywords
+actions:                                  # executable actions
+  - Don't set aggressive parameters on intuition; benchmark first
+  - Verify full transitive dependencies before recording
+priority: 8                               # 1-10, 10 highest
+status: active                            # active | shadow
+source: viking://.../some_insight.md      # provenance (not read at runtime)
+```
+
+### Card states (lifecycle.py five-state machine)
+
+```
+draft → active → watch → quarantine → retired
+```
+
+**Only cards with `status: active` are injected**. Cards in the `shadow/` subdirectory are never loaded (candidate observation zone).
+
+### Scenario tags (8 categories)
+
+```
+new_build              New implementation
+bug_fix                Bug fix
+refactor               Existing refactor
+test_validation        Test validation
+security_sanitization  Security sanitization
+ops_config             Ops configuration
+code_review            Code review
+doc_comms              Documentation / communication
+general                General (used on degradation)
+system_design          System design (project extension)
+```
+
+### Signal extraction (signal_extractor.py)
+
+**Pure rules, zero LLM**. Converts a user message into `{scenario, keywords, text}` or `None` (chitchat).
+
+**Key design**: Maintains a `STRONG_SIGNALS` allowlist (error / model / config / performance keywords) — these words trigger on a **single occurrence**, bypassing the keyword-hit threshold. Weak signals only trigger when enough accumulate.
+
+**Avoiding false positives**:
+- "this endpoint is returning 500" → hits strong signal "error" → triggers ✓
+- "you're replying too slow" → weak signal "slow" alone → does not trigger ✓
+
+---
+
+## Debugging & Troubleshooting
+
+### Hook not hitting
+
+```bash
+# 1. Does the state file have new records? If not → hook never truly fired
+ls -la retrieval_state.json
+
+# 2. Manually test signal extraction
+python3 -c "
+from strategy_internalization.signal_extractor import extract_signals
+print(extract_signals('this endpoint is returning 500'))   # should be non-None
+print(extract_signals('nice weather today'))                # should be None
+"
+
+# 3. Check whether the plugin actually registered
+hermes plugins list | grep strategy-injection
+```
+
+### Fail-open verification
+
+When the engine throws, the hook must return an empty dict without interrupting the conversation:
+```python
+from strategy_internalization import signal_extractor as se
+# Simulate engine crash
+se.extract_signals = lambda *a,**k: (_ for _ in ()).throw(RuntimeError("boom"))
+# Calling _pre_llm_call should return {} rather than raising
+```
+
+### Viewing hit history
+
+```bash
+python3 -c "
+import json, time
+s = json.load(open('retrieval_state.json'))
+for k in sorted(s.keys()):
+    v = s[k]
+    ts = time.strftime('%m-%d %H:%M', time.localtime(v['created_at']))
+    c = '+'.join([x['id'] for x in v.get('cards',[])])
+    print(f'{ts} [{v[\"scenario\"]:18}] {c:40} tok={v[\"tokens\"]}')
+"
+```
+
+---
+
+## File Responsibility Quick Reference
+
+| File | Responsibility | When to read |
+|------|---------------|-------------|
+| `strategy_internalization/retriever.py` | Retrieval + conservative injection + XML boundary | Modifying injection logic |
+| `strategy_internalization/signal_extractor.py` | Pure-rule signal extraction | Tuning matching / adding scenario keywords |
+| `strategy_internalization/lifecycle.py` | Five-state card lifecycle | Card promotion / quarantine |
+| `strategy_internalization/feedback_log.py` | Negative-feedback log | Future scoring (currently log-only, no learning) |
+| `plugin/__init__.py` | pre_llm_call callback | Changing hook behavior |
+| `cards/*.yaml` | Active card data | Adding / modifying strategies |
+| `cards/shadow/*.yaml` | Candidate cards | Observe before promotion |
+| `scripts/call_model.py` | Multi-model TDD utility | Multi-model collaboration for card creation |
+
+---
+
+## FAQ
+
+**Q: Do I still need the strategy-retrieval Skill after installing the hook?**
+A: No. The hook is a code-level hard-wired entry point; the Skill is soft matching (observed miss rate ≈100%). After installing the hook, the Skill becomes redundant — keep it as a "troubleshooting manual" if you want.
+
+**Q: Will chitchat get strategy cards injected?**
+A: No. `extract_signals` returns `None` for chitchat. The hook returns an empty dict — zero token overhead.
+
+**Q: Can I use this without Hermes?**
+A: Yes. The core (retriever / signal_extractor) is pure Python with no Hermes dependency. Only `plugin/` depends on Hermes' `pre_llm_call` hook. Other systems just need to implement an equivalent hook.
+
+**Q: If I add a new card under cards/, does it take effect immediately?**
+A: A new card with `status: active` placed under `cards/` (not shadow/) will be loaded the next time the hook fires. Cards in the `shadow/` subdirectory are never loaded.
+
+**Q: How do I turn this off?**
+A: `bash $HOME/.hermes/plugins/strategy-injection/rollback.sh` (soft rollback — keeps plugin files). Add `--clean` to completely delete the plugin + clear cache.
+
+**Q: I want to create my own cards. Where does the content come from?**
+A: Scenario A (pure injection): write YAML directly by hand, following the format of the 9 existing active cards. Scenario B (closed loop): recommended approach is to use ReasoningBank to distill from work traces, then compress into ≤150-character cards.
+
+---
+
+## Anti-Patterns (Do NOT Do This)
+
+- ❌ Let an LLM read OpenViking long-form articles online for "experience retrieval" (infinite money-burn death spiral)
+- ❌ Set a uniform hit threshold for all keywords (strong-signal words like "error" / "model" must have individual exemptions)
+- ❌ Turn every lesson into a Skill (Skills bloat the main context — they must remain scarce)
+- ❌ Depend on the LLM "remembering it already searched" (state must be externalized to files)
+- ❌ On a mismatch, "search the library again for a better match" (death spiral entry point)
+- ❌ Set a new strategy card to `active` immediately (put it in shadow first, observe, then promote once stable)
+
+---
+
+## Relationship to Other Systems
+
+- **OpenViking**: Knowledge base. This repo's card `source` field points to OpenViking insights (provenance, not a runtime dependency).
+- **ReasoningBank**: Upstream reasoning framework. Source of card content (needed for Scenario B closed loop).
+- **Hermes Agent**: Plugin host. This repo's `plugin/` directory depends on its `pre_llm_call` hook.
+
+This repo sits at the **very tail end** of the closed loop — injecting active cards into the LLM. Whatever insight framework or knowledge base you use upstream, it works, as long as the final output is valid YAML cards.
+
+---
+
+---
+
+## 中文版
+
 # AGENTS.md — Strategy Internalization 接入指南（面向 AI Agent）
 
 > 本文件供 AI Agent（Hermes / Claude Code / 其他 LLM 编排系统）阅读，指导如何接入和使用策略内化层。Agent 收到「集成策略注入」「让 Agent 自动应用经验」类任务时先读这个。

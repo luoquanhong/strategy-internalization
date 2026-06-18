@@ -1,4 +1,279 @@
-# Strategy Internalization Layer（策略内化层）
+# Strategy Internalization Layer
+
+```
+strategy-internalization = muscle memory for AI Agents
+—— so they stop learning the same lessons the hard way, every time
+```
+
+---
+
+English | [中文版](#中文版)
+
+---
+
+## What Is This
+
+A **pure-Python control plane** that compresses engineering experience into lightweight YAML strategy cards and injects the most relevant ones into an LLM's prompt — automatically, before each call. The Agent sees "what went wrong last time" before it writes code, fixes a bug, or touches config.
+
+**The mental model is a compiler's optimizer pass:**
+- Offline: long-form experience → compressed into ≤150-character strategy cards
+- Online: before every LLM call, code picks the most relevant cards and stuffs them into the prompt
+
+### Capabilities at a glance
+
+| Capability | Description |
+|------------|-------------|
+| Strategy injection | Automatically matches the most relevant strategy cards to technical tasks (bug fix, refactor, ops config, etc.) |
+| Zero-cost for chitchat | Signal extraction returns `None` → no injection, no tokens consumed |
+| Strong boundary isolation | Cards wrapped in XML tags + user's original request repeated at the end to win recency — never overrides user intent |
+| Conservative injection | Default cap: 2 cards / 300 tokens. Falls back to single-card mode when confidence is low |
+| Fail-open | Engine exceptions are logged, never interrupt the conversation. Shield-first design |
+| **Zero source-code changes** | Entirely implemented via Hermes Agent's plugin mechanism |
+
+---
+
+## Repository Structure
+
+```
+strategy-internalization/
+├── README.md                      This file (for humans)
+├── AGENTS.md                      Onboarding guide (for AI Agents)
+├── SPEC.md                        Interface contract (test basis)
+├── .env.example                   Environment variable template
+├── requirements.txt               Python dependencies
+├── pytest.ini
+├── strategy_internalization/      Source package
+│   ├── retriever.py               Retrieval + conservative injection + XML boundary
+│   ├── signal_extractor.py        Pure-rule signal extraction
+│   ├── lifecycle.py               Five-state card lifecycle (draft→active→retired)
+│   ├── feedback_log.py            SQLite negative-feedback log (log first, learn later)
+│   ├── models.py                  Data structures
+│   └── tokens.py                  Token estimation
+├── cards/                         Strategy cards
+│   ├── concern-separation.yaml    9 active cards, ready to use
+│   ├── ...
+│   └── shadow/                    Candidate cards (promoted before injection)
+├── tests/                         Tests (95 passed)
+├── plugin/                        Hermes Agent plugin
+│   ├── __init__.py                pre_llm_call callback
+│   ├── plugin.yaml                Plugin manifest
+│   ├── enable.sh                  One-click enable
+│   └── rollback.sh                One-click rollback
+└── scripts/
+    └── call_model.py              Multi-model calling utility (for TDD)
+```
+
+---
+
+## Quick Start (5 minutes)
+
+### Prerequisites
+
+- Python 3.10+
+- A Hermes Agent or compatible LLM orchestration system (optional — the plugin only targets Hermes)
+
+### Run
+
+```bash
+# Clone
+git clone https://github.com/luoquanhong/strategy-internalization.git
+cd strategy-internalization
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run tests to verify (95 passed = environment is good)
+pytest tests/ -v
+```
+
+---
+
+## Two Usage Modes (read this first)
+
+### Mode A: Pure Strategy Injection (recommended for newcomers)
+
+**No OpenViking. No ReasoningBank.** Works out of the box.
+
+The repo ships with 9 pre-refined active strategy cards covering bug_fix / system_design / ops_config / refactor scenarios. They can be injected into any OpenAI-compatible LLM.
+
+#### Enable the plugin on Hermes Agent
+
+```bash
+# 1. Copy the plugin to Hermes' plugin directory
+cp -r plugin $HOME/.hermes/plugins/strategy-injection
+
+# 2. Enable (auto-backs up config + reloads)
+bash $HOME/.hermes/plugins/strategy-injection/enable.sh
+
+# 3. Verify
+hermes plugins list
+# You should see strategy-injection  enabled
+```
+
+> **Gateway restart deadlock**: Running `systemctl --user restart hermes-gateway` from inside a Hermes gateway session will hang — the gateway waits for the session to end, the session waits for the gateway. This is NOT a bug — after the drain timeout, the new process takes over automatically. Verify on the *next* message.
+
+**After enabling:**
+- You say "help me debug this API error" → `no-blind-bypass-error` + `param-no-blind-est` are injected automatically
+- You say "let's chat" → nothing is injected (zero token overhead)
+
+#### Using with other LLM systems
+
+The plugin depends on Hermes' native `pre_llm_call` hook. If your orchestration system doesn't support it, you can call the core API directly:
+
+```python
+from strategy_internalization.signal_extractor import extract_signals
+from strategy_internalization.retriever import retrieve, wrap_for_injection
+
+# 1. Extract task signals
+sig = extract_signals("this endpoint is returning 500")
+if sig is None:
+    print("chitchat, skip injection")
+else:
+    # 2. Retrieve strategy cards
+    packet = retrieve(sig)
+    # 3. Compile into injection text (with XML boundary)
+    ctx = wrap_for_injection(packet.text, "this endpoint is returning 500")
+    if ctx:
+        print(f"Injected strategy: {ctx}")
+```
+
+---
+
+### Mode B: Full Experience-Internalization Loop (continuous self-evolution)
+
+> **Ideal for**: You want your Agent to continuously accumulate experience at work and automatically distill it into injectable strategies.
+
+Requires 3 additional components:
+
+| Component | Purpose | Installation |
+|-----------|---------|-------------|
+| **① OpenViking** | Knowledge base — stores raw experience (insights) | Standalone service (see its docs) |
+| **② ReasoningBank** | Reasoning framework — distills experience from work traces | Standalone framework (see its docs) |
+| **③ Scheduled sync job** | Scans OpenViking insights/ → generates shadow strategy cards | Hermes cronjob or standalone cron |
+
+```
+                Work traces
+                   ↓
+         ┌─ ReasoningBank ─┐
+         │  distill insight  │
+         └────────┬─────────┘
+                  ↓
+         ┌─ OpenViking ─────┐
+         │  insights/ dir    │
+         └────────┬─────────┘
+                  ↓ (cron scheduled sync)
+         ┌─ shadow cards ────┐
+         │  observe, do NOT  │
+         │  inject            │
+         └────────┬─────────┘
+                  ↓ (promote after stabilization)
+         ┌─ active cards ────┐
+         │  hook auto-injects │
+         └───────────────────┘
+                  ↓
+         Injected before LLM call
+```
+
+**⚠️ Note**: This loop is decoupled from the strategy-internalization repo — the repo only provides the injection mechanism. It does not force any specific insight framework on you. You can produce strategy cards however you like, as long as they are valid `.yaml` files under `cards/`.
+
+---
+
+## Viewing Hit Statistics
+
+```bash
+# Simplest
+cat retrieval_state.json | python3 -m json.tool
+
+# Clearer summary
+python3 -c "
+import json, time
+s = json.load(open('retrieval_state.json'))
+print(f'Total records: {len(s)}')
+for k in sorted(s.keys())[-20:]:
+    v = s[k]
+    ts = time.strftime('%m-%d %H:%M', time.localtime(v['created_at']))
+    c = '+'.join([x['id'] for x in v.get('cards',[])])
+    d = 'degraded' if v.get('degraded') else 'normal'
+    print(f'  {ts}  [{v[\"scenario\"]:18}]  {c:45}  tok={v[\"tokens\"]}  {d}')
+"
+```
+
+---
+
+## Configuration Reference
+
+### Engine parameters (retriever.py defaults)
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `max_cards` | 2 | Max cards injected (high-confidence) |
+| `max_tokens` | 300 | Injection text token cap |
+| `high_confidence_threshold` | 0.5 | top1 ≥ 0.5 allows multi-card; below goes single-card |
+| `degrade_threshold` | 0.3 | Below this, fall back to a generic strategy |
+
+### Plugin environment variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `STRATEGY_ENGINE_PATH` | auto-detected | Specify engine directory |
+| `STRATEGY_ENGINE_STATE` | `$HOME/strategy-internalization/retrieval_state.json` | State file path |
+
+### Engine discovery logic (for plugins)
+
+The engine directory is the directory that contains both the `strategy_internalization/` package and the `cards/` directory.
+- `STRATEGY_ENGINE_PATH` env var takes priority
+- Falls back to auto-detection: plugin sibling → parent → conventional subdirectory `strategy-internalization/`
+
+---
+
+## Troubleshooting
+
+### Plugin is enabled but not hitting
+
+```bash
+# Check state file modification time
+ls -la retrieval_state.json
+
+# Check whether the plugin is actually registered
+hermes plugins list | grep strategy-injection
+
+# Manually test signal extraction
+python3 -c "
+from strategy_internalization.signal_extractor import extract_signals
+print(extract_signals('this endpoint is erroring'))
+print(extract_signals('hey there'))
+"
+```
+
+### Tests are failing
+
+```bash
+# Check Python version (needs 3.10+)
+python3 --version
+
+# Check pytest is installed
+python3 -m pytest --version
+```
+
+---
+
+## Origin
+
+This strategy-internalization layer went through a full production hardening cycle on a live Hermes Agent:
+- Multi-model TDD workflow (models took turns writing tests → review → implement)
+- Six-category sanitization before pushing to public GitHub
+- Real-world validation: miss rate went from ≈100% (Skill soft-match) to 0% (code-level hook)
+- 95 TDD tests with A/B reverse validation
+
+It was battle-tested in production, not a proof of concept.
+
+---
+
+---
+
+## 中文版
+
+# 策略内化层（Strategy Internalization Layer）
 
 ```
 策略内化层 = AI Agent 的「肌肉记忆」
