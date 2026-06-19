@@ -1,9 +1,13 @@
-# Strategy Internalization Layer
+<p align="center">
+  <img src="docs/banner.png" alt="Strategy Internalization Layer — warm sunlit desk scene" width="100%" />
+</p>
 
-```
-strategy-internalization = muscle memory for AI Agents
-—— so they stop learning the same lessons the hard way, every time
-```
+<h1 align="center">Strategy Internalization Layer</h1>
+
+<p align="center">
+<code>strategy-internalization = muscle memory for AI Agents</code><br/>
+<sub>—— so they stop learning the same lessons the hard way, every time</sub>
+</p>
 
 ---
 
