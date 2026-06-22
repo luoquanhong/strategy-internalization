@@ -13,7 +13,9 @@ from pathlib import Path
 
 import pytest
 
-# 公开版扁平结构：plugin/__init__.py 在仓库根的 plugin/ 目录
+# Public repo layout: plugin/__init__.py lives under the repo root.
+# Do not import the production plugin path here; that would make clone tests
+# depend on the local Hermes installation and leak environment-specific paths.
 PLUGIN_INIT = Path(__file__).resolve().parent.parent / "plugin" / "__init__.py"
 
 

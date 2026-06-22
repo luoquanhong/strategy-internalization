@@ -1,9 +1,16 @@
+actions:
+- 把任务进度/已试失败路径/核心约束从易失记忆转到持久外部存储
+- 每次执行新动作前先查外部状态做防重入校验和闭环检测
+- 打破因失忆导致的盲目重试
 id: state-externalize
-source_shadow_id: shadow-state-externalize
-title: 状态外部化与防重入校验
+priority: 9
 scenario_tags:
 - bug_fix
 - system_design
+source: insights/2026-06-15-AIAgent上下文饱和循环烧钱事故防护-ReasoningBank推理产出.md
+source_shadow_id: shadow-state-externalize
+status: active
+title: 状态外部化与防重入校验
 trigger_keywords:
 - 死循环
 - 失忆
@@ -13,10 +20,3 @@ trigger_keywords:
 - 防重入
 - 状态
 - 重试
-actions:
-- 把任务进度/已试失败路径/核心约束从易失记忆转到持久外部存储
-- 每次执行新动作前先查外部状态做防重入校验和闭环检测
-- 打破因失忆导致的盲目重试
-priority: 9
-source: insights/2026-06-15-AIAgent上下文饱和循环烧钱事故防护-ReasoningBank推理产出.md
-status: active

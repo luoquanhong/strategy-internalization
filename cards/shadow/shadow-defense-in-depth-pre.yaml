@@ -1,0 +1,27 @@
+id: shadow-defense-in-depth-pre
+title: 前置防护网构建策略
+scenario_tags:
+- cost_safety
+- system_design
+trigger_keywords:
+- 防护网
+- 安全闸门
+- 质量左移
+- CI阻断
+- 预发校验
+- 运行时熔断
+- 多层正交
+- 风险红线
+- 自动判定
+- 硬性阻断
+- 上线安全
+- 四道防护
+actions:
+- 梳理演进路径，明确定义不可逾越的风险红线
+- 由近及远设计多道独立安全闸门：本地静态检查→CI自动化测试阻断→预发环境校验→线上运行时熔断兜底
+- 所有防护机制实现自动化判定且硬性阻断危险变更，不依赖人工判断
+- 多重防护网全部就绪并验证有效后才执行后续工程上线动作
+- 上线后持续监控防护网触发频率，异常高频说明设计有遗漏需回溯加固
+priority: 9
+status: shadow
+source: insights/2026-06-20-策略内化层架构治理方法论-ReasoningBank推理产出.md

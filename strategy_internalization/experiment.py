@@ -256,12 +256,12 @@ def mark_stale_exposures_as_retry(
     now: Optional[float] = None,
 ) -> int:
     """
-    批量标记超时无 outcome 的 held_out=0 曝光为 retry。
+    [已废弃] 批量标记超时无 outcome 的 held_out=0 曝光为 retry。
 
-    hook 在每次 pre_llm_call 时调用：如果用户发了新消息，
-    之前超过 window 秒还没 outcome 的曝光 → 推定为 retry（用户没满意就继续了）。
+    保留向后兼容，但新代码请用 resolve_stale_exposures（双向信号）。
 
-    返回标记的条数。
+    原逻辑：超过 window 秒还没 outcome 的曝光 → retry。
+    问题：chat 场景下几乎所有曝光最终都会超时，导致负反馈率永远 100%。
     """
     if now is None:
         now = time.time()
@@ -286,3 +286,65 @@ def mark_stale_exposures_as_retry(
     for rid in stale_rids:
         record_outcome(db_path, rid, "retry", timestamp=now)
     return len(stale_rids)
+
+
+def resolve_stale_exposures(
+    db_path: str,
+    *,
+    boundary_seconds: int = 1800,
+    now: Optional[float] = None,
+) -> tuple:
+    """
+    双向信号：解决无 outcome 的 held_out=0 曝光，按时间分两类。
+
+    - age < boundary_seconds → retry（用户很快回来，可能没解决）
+    - age >= boundary_seconds → success（隔了 boundary 以上，大概率满意走了）
+
+    有 outcome 的曝光不动（已有人工/自动记录的结果）。
+    held_out=1 的对照组曝光不参与（没注入不能归因）。
+
+    Returns:
+        (retry_count, success_count)
+    """
+    if now is None:
+        now = time.time()
+    boundary = now - boundary_seconds
+
+    conn = sqlite3.connect(db_path)
+    try:
+        # age < boundary → retry（timestamp >= boundary，即较近的）
+        cur_retry = conn.execute(
+            """
+            SELECT DISTINCT exposure.request_id
+            FROM exposure
+            LEFT JOIN outcome ON exposure.request_id = outcome.request_id
+            WHERE exposure.held_out = 0
+              AND exposure.timestamp >= ?
+              AND outcome.request_id IS NULL
+            """,
+            (boundary,),
+        )
+        retry_rids = [row[0] for row in cur_retry.fetchall()]
+
+        # age >= boundary → success（timestamp < boundary，即较远的）
+        cur_success = conn.execute(
+            """
+            SELECT DISTINCT exposure.request_id
+            FROM exposure
+            LEFT JOIN outcome ON exposure.request_id = outcome.request_id
+            WHERE exposure.held_out = 0
+              AND exposure.timestamp < ?
+              AND outcome.request_id IS NULL
+            """,
+            (boundary,),
+        )
+        success_rids = [row[0] for row in cur_success.fetchall()]
+    finally:
+        conn.close()
+
+    for rid in retry_rids:
+        record_outcome(db_path, rid, "retry", timestamp=now)
+    for rid in success_rids:
+        record_outcome(db_path, rid, "success", timestamp=now)
+
+    return (len(retry_rids), len(success_rids))

@@ -1,0 +1,26 @@
+id: shadow-small-sample-honest-eval
+title: 小样本约束下诚实验证
+scenario_tags:
+- test
+- review
+trigger_keywords:
+- 小样本
+- 统计显著性不足
+- 效应量
+- holdout实验
+- 三角互证
+- 实验隔离
+- 方向性趋势
+- 盲测复核
+- 定性定量闭环
+- 数据有限
+- 交叉验证
+actions:
+- 承认小数据量局限，放弃高置信度统计指标执念，诚实标注结论置信度
+- 时间/空间上严格隔离实验组与对照组，切断信息泄露路径
+- 关注效应量和方向性趋势而非p值，用交叉验证降低方差
+- 小样本定量指标 + 业务定性逻辑分析 + 人工盲测复核形成三角互证
+- 不为了表面漂亮而假装能得出显著性结论——诚实比好看更重要
+priority: 7
+status: shadow
+source: insights/2026-06-20-策略内化层价值闭环构建方法论-ReasoningBank推理产出.md

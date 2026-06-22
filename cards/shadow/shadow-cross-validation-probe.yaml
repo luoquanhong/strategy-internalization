@@ -1,0 +1,26 @@
+id: shadow-cross-validation-probe
+title: 交叉验证与反向探针机制
+scenario_tags:
+- test
+- review
+trigger_keywords:
+- 交叉验证
+- 反向探针
+- TDD红阶段
+- 审计盲区
+- 测试体系验证
+- 预期失败
+- 异构比对
+- 根因分析
+- 差异盲区
+- 验证可靠性
+- 冲突检测
+actions:
+- 引入至少2个异构信息源（不同底层逻辑的工具/规则）进行比对审计
+- 将异构比对的冲突点作为深挖线索，不忽略任何差异
+- 主动构造预期应失败的探针场景（TDD RED阶段），验证失败是否如期发生
+- 分析探针实际表现与预期的偏差，反向暴露测试设计本身的逻辑漏洞
+- 用'失败验证基石'的推理闭环确认验证体系自身可靠性
+priority: 8
+status: shadow
+source: insights/2026-06-20-Shadow池治理TDD工作流方法论-ReasoningBank推理产出.md

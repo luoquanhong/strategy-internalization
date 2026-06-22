@@ -1,0 +1,26 @@
+id: shadow-test-driven-migration
+title: 特征测试驱动的渐进合拢
+scenario_tags:
+- test
+- system_design
+trigger_keywords:
+- 特征测试
+- 渐进合拢
+- 逻辑替换
+- 行为基线
+- 特性开关
+- TDD迁移
+- AB反向验证
+- 灰度切流
+- 平滑过渡
+- 旧代码删除
+- 技术债清理
+actions:
+- 优先为旧有逻辑编写特征测试，锁定现有行为基线不动摇
+- 新逻辑必须通过完全相同的特征测试集后才允许进入灰度
+- 采用特性开关或路由机制，按比例或分批次将流量切向新逻辑
+- 红-绿TDD循环 + AB反向验证，确保行为基线不退化
+- 基于测试反馈全量合拢后，安全删除旧代码
+priority: 8
+status: shadow
+source: insights/2026-06-20-策略内化层架构治理方法论-ReasoningBank推理产出.md

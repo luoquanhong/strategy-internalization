@@ -1,9 +1,16 @@
+actions:
+- 定稿后引入落地推演，模拟真实执行链路找逻辑断点或资源死锁
+- 定位到可能导致死循环或核心约束冲突的根本缺陷立即触发推翻
+- 区分局部瑕疵与底层逻辑悖论，后者必须推翻重来不打补丁
 id: premortem-veto
-source_shadow_id: shadow-premortem-veto
-title: 事前验尸与硬伤否决
+priority: 9
 scenario_tags:
 - review
 - system_design
+source: insights/2026-06-15-策略内化层二轮评审与多模型TDD落地-ReasoningBank推理产出.md
+source_shadow_id: shadow-premortem-veto
+status: active
+title: 事前验尸与硬伤否决
 trigger_keywords:
 - 落地推演
 - 推翻
@@ -12,10 +19,3 @@ trigger_keywords:
 - 死锁
 - 打补丁
 - 定稿
-actions:
-- 定稿后引入落地推演，模拟真实执行链路找逻辑断点或资源死锁
-- 定位到可能导致死循环或核心约束冲突的根本缺陷立即触发推翻
-- 区分局部瑕疵与底层逻辑悖论，后者必须推翻重来不打补丁
-priority: 9
-source: insights/2026-06-15-策略内化层二轮评审与多模型TDD落地-ReasoningBank推理产出.md
-status: active

@@ -1,0 +1,28 @@
+id: shadow-external-contract-risk
+title: 外部承诺风险前置管理
+scenario_tags:
+- cost_safety
+- system_design
+- bug_fix
+trigger_keywords:
+- 外部依赖
+- API契约
+- 容错设计
+- 防腐层
+- 熔断降级
+- 契约违背
+- 格式突变
+- 超时处理
+- Mock隔离
+- 弹性假设
+- 签名校验
+- 多模型协作
+actions:
+- 在本地系统与外部依赖间建立适配器/Mock层，优先测试内部业务逻辑闭环
+- 主动注入契约违背故障（超时/格式突变/错误码），验证容错与熔断能力
+- API签名必须从源码复制，绝不手写——手写签名是契约违背的常见根因
+- 隔离上游变更影响，确保外部API承诺失效时业务能平滑降级
+- 每次外部依赖升级后重新运行契约违背故障注入测试
+priority: 8
+status: shadow
+source: insights/2026-06-20-策略内化层价值闭环构建方法论-ReasoningBank推理产出.md

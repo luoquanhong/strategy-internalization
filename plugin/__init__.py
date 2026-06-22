@@ -4,8 +4,8 @@
 - 闲聊：extract_signals 返回 None → 不注入，零开销
 - 命中：retrieve（保守注入 max_cards=2/max_tokens=300 + 中置信单卡）
         → wrap_for_injection（XML 强边界 + 用户原始请求重述吃 recency）
-- P1 实验：experiment_db 传入 retrieve → holdout 分流 + penalty 降权 + 曝光记录
-           mark_stale_exposures_as_retry → 超时无 outcome 的曝光推定为 retry
+- P1/P2 实验：experiment_db 传入 retrieve → holdout 分流 + penalty 降权 + 曝光记录
+             resolve_stale_exposures → 无 outcome 曝光生成 retry/success 双向信号
 - fail-open：任何异常只记日志不中断对话（外层 conversation_loop 已兜，内层再保一道）
 
 零改源码：插件放 ~/.hermes/plugins/，config.yaml 的 plugins.enabled 启用。
@@ -67,11 +67,15 @@ def _pre_llm_call(*, user_message=None, **kwargs):
         from strategy_internalization.retriever import retrieve, wrap_for_injection
         from strategy_internalization import experiment
 
-        # P1: 初始化实验 DB + 标记超时曝光为 retry
+        # 初始化实验 DB + 双向信号：resolve 无结果曝光
+        # <boundary(默认30分钟)→retry（用户很快回来），>=boundary→success（隔得久）
         experiment.init_db(_DB)
-        stale = experiment.mark_stale_exposures_as_retry(_DB)
-        if stale:
-            logger.info("strategy-injection: marked %d stale exposure(s) as retry", stale)
+        retry_n, success_n = experiment.resolve_stale_exposures(_DB)
+        if retry_n or success_n:
+            logger.info(
+                "strategy-injection: resolved %d stale (retry=%d, success=%d)",
+                retry_n + success_n, retry_n, success_n,
+            )
 
         msg = str(user_message)
         sig = extract_signals(msg, cards_dir=_CARDS)

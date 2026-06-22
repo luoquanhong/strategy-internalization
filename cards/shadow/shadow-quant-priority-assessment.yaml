@@ -1,0 +1,27 @@
+id: shadow-quant-priority-assessment
+title: 多维量化优先级评估
+scenario_tags:
+- review
+- system_design
+trigger_keywords:
+- 优先级排序
+- 治理规划
+- 技术债评估
+- 重构决策
+- 多维评分
+- 量化打分
+- 投入产出比
+- 风险评估矩阵
+- 任务排序
+- 工程规划
+- 聚类排序
+- 价值权重
+actions:
+- 构建价值/风险/成本三维评估矩阵，每维定义2-3个可量化指标
+- 对候选任务逐项打分并聚类，生成科学的推进顺序
+- 确保评估维度客观且正交，避免维度间信息重叠导致偏差
+- 优先阻断系统性风险项，再按投入产出比降序执行
+- 排序结果需经至少2人交叉复核，防止单一视角盲区
+priority: 7
+status: shadow
+source: insights/2026-06-20-Shadow池治理TDD工作流方法论-ReasoningBank推理产出.md

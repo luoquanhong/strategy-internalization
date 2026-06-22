@@ -1,0 +1,27 @@
+id: shadow-zero-intrusion-gray
+title: 零侵入式生产灰度嵌入
+scenario_tags:
+- cost_safety
+- system_design
+trigger_keywords:
+- 灰度发布
+- 零回归
+- 旁路验证
+- feature flag
+- 影子模式
+- 状态隔离
+- 生产安全
+- 熔断降级
+- 沙盒写入
+- 只读不改
+- 细粒度监控
+- 一键回退
+actions:
+- 通过feature flag或影子模式接收生产输入，计算后旁路记录不干预主链路输出
+- 实验框架读操作只读不改，写操作只写独立沙盒，实现状态绝对隔离
+- 新功能通过optional参数（默认None）实现零回归——旧调用点行为完全不变
+- 部署细粒度资源监控+异常告警，任何非预期抖动触发一键降级回退
+- 灰度只对新卡或watch卡生效，成熟active卡不被打扰
+priority: 9
+status: shadow
+source: insights/2026-06-20-策略内化层价值闭环构建方法论-ReasoningBank推理产出.md

@@ -1,0 +1,20 @@
+actions:
+- 不凭直觉设激进参数，先小范围实测
+- 确认全量传递依赖(库体积/接口)再记录
+- 建立明确质量基线后再调参
+id: draft-shadow
+priority: 8
+scenario_tags:
+- ops_config
+- bug_fix
+source: insights/策略-参数与资源勿盲估.md
+status: shadow
+title: 参数与资源勿盲估
+trigger_keywords:
+- 参数
+- 资源
+- 盲估
+- 实测
+- 依赖
+- 体积
+- 调参
