@@ -207,11 +207,29 @@ def sync_to_feedback_log(experiment_db: str, feedback_db: str) -> SyncResult:
 
 # ── 3. 评估生命周期 ──────────────────────────────────────────────
 
-def evaluate_lifecycle(feedback_db: str, cards_dir: str, now: Optional[float] = None) -> list:
+def evaluate_lifecycle(
+    feedback_db: str,
+    cards_dir: str,
+    now: Optional[float] = None,
+    experiment_db: Optional[str] = None,
+) -> list:
     """对每张 active/watch 卡，读 feedback_log 算 negative_count + days_since，
-    调 lifecycle.transition() 返回建议状态变更列表。"""
+    调 lifecycle.transition() 返回建议状态变更列表。
+
+    v2（2026-06-23 温和阈值）：传 experiment_db 时，额外算 negative_rate +
+    total_injected 传给 transition，用"率≥40%+样本≥5"双门槛代替旧的"绝对次数≥3"，
+    避免高频注入卡被冤降。不传 experiment_db 时走旧逻辑（向后兼容）。
+    """
     if now is None:
         now = time.time()
+
+    # v2: 预聚合 experiment.db 统计（一次性查，避免循环内反复查库）
+    exp_stats: dict = {}
+    if experiment_db is not None:
+        all_stats = aggregate_all_cards(experiment_db)
+        exp_stats = {
+            cid: s for cid, s in all_stats.items()
+        }
 
     decisions = []
     for yaml_path in sorted(Path(cards_dir).glob("*.yaml")):
@@ -249,11 +267,22 @@ def evaluate_lifecycle(feedback_db: str, cards_dir: str, now: Optional[float] = 
         else:
             continue
 
+        # v2: 有 experiment 统计时传 rate + total_injected（温和双门槛）
+        # v1: 没有时只传 negative_count（旧绝对次数逻辑）
+        extra_kwargs = {}
+        if experiment_db is not None and card_id in exp_stats:
+            s = exp_stats[card_id]
+            extra_kwargs = {
+                "negative_rate": s.negative_rate,
+                "total_injected": s.total_injected,
+            }
+
         suggested = lifecycle.transition(
             status,
             event,
             negative_count=neg_count,
             days_since_last_negative=days_since,
+            **extra_kwargs,
         )
 
         decisions.append(LifecycleDecision(
@@ -323,8 +352,8 @@ def run_pipeline(
     # 2. 同步 outcome → feedback_log
     sync_result = sync_to_feedback_log(experiment_db, feedback_db)
 
-    # 3. 评估生命周期
-    decisions = evaluate_lifecycle(feedback_db, cards_dir)
+    # 3. 评估生命周期（v2：传 experiment_db 启用温和双门槛）
+    decisions = evaluate_lifecycle(feedback_db, cards_dir, experiment_db=experiment_db)
 
     # 4. 应用变更
     apply_result = apply_lifecycle_decisions(cards_dir, decisions, dry_run=dry_run)

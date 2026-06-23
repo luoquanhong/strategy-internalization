@@ -352,14 +352,19 @@ class TestRunPipeline:
         cards_dir = str(tmp_path / "cards")
         card_path = write_card(cards_dir, "c1", status="active")
         now = time.time()
+        # v2：5次注入5次retry（100%率+样本5≥5），满足温和双门槛才会建议降级
         setup_experiment_db(exp_db, [
-            ("r1", "c1", "bug_fix", False, now - 40),
-            ("r2", "c1", "bug_fix", False, now - 30),
-            ("r3", "c1", "bug_fix", False, now - 20),
+            ("r1", "c1", "bug_fix", False, now - 50),
+            ("r2", "c1", "bug_fix", False, now - 40),
+            ("r3", "c1", "bug_fix", False, now - 30),
+            ("r4", "c1", "bug_fix", False, now - 20),
+            ("r5", "c1", "bug_fix", False, now - 10),
         ], [
-            ("r1", "retry", now - 35),
-            ("r2", "retry", now - 25),
-            ("r3", "retry", now - 15),
+            ("r1", "retry", now - 45),
+            ("r2", "retry", now - 35),
+            ("r3", "retry", now - 25),
+            ("r4", "retry", now - 15),
+            ("r5", "retry", now - 5),
         ])
         setup_feedback_db(fb_db)
         report = run_pipeline(exp_db, fb_db, cards_dir, dry_run=True)
@@ -377,14 +382,19 @@ class TestRunPipeline:
         cards_dir = str(tmp_path / "cards")
         card_path = write_card(cards_dir, "c1", status="active")
         now = time.time()
+        # v2：5次注入5次retry（100%率+样本5≥5），满足温和双门槛
         setup_experiment_db(exp_db, [
-            ("r1", "c1", "bug_fix", False, now - 40),
-            ("r2", "c1", "bug_fix", False, now - 30),
-            ("r3", "c1", "bug_fix", False, now - 20),
+            ("r1", "c1", "bug_fix", False, now - 50),
+            ("r2", "c1", "bug_fix", False, now - 40),
+            ("r3", "c1", "bug_fix", False, now - 30),
+            ("r4", "c1", "bug_fix", False, now - 20),
+            ("r5", "c1", "bug_fix", False, now - 10),
         ], [
-            ("r1", "retry", now - 35),
-            ("r2", "retry", now - 25),
-            ("r3", "retry", now - 15),
+            ("r1", "retry", now - 45),
+            ("r2", "retry", now - 35),
+            ("r3", "retry", now - 25),
+            ("r4", "retry", now - 15),
+            ("r5", "retry", now - 5),
         ])
         setup_feedback_db(fb_db)
         report = run_pipeline(exp_db, fb_db, cards_dir, dry_run=False)

@@ -9,7 +9,7 @@ scenario_tags:
 - system_design
 source: insights/2026-06-15-AIAgent上下文饱和循环烧钱事故防护-ReasoningBank推理产出.md
 source_shadow_id: shadow-state-externalize
-status: active
+status: watch
 title: 状态外部化与防重入校验
 trigger_keywords:
 - 死循环

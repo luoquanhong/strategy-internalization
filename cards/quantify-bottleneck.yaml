@@ -7,7 +7,7 @@ priority: 7
 scenario_tags:
 - refactor
 - bug_fix
-status: active
+status: watch
 title: 量化定位资源瓶颈
 trigger_keywords:
 - 瓶颈
