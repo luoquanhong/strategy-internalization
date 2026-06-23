@@ -59,7 +59,7 @@ strategy-internalization/
 │   ├── concern-separation.yaml    9 active cards, ready to use
 │   ├── ...
 │   └── shadow/                    Candidate cards (promoted before injection)
-├── tests/                         Tests (143 passed)
+├── tests/                         Tests (227 passed)
 ├── plugin/                        Hermes Agent plugin
 │   ├── __init__.py                pre_llm_call callback
 │   ├── plugin.yaml                Plugin manifest
@@ -88,7 +88,7 @@ cd strategy-internalization
 # Install dependencies
 pip install -r requirements.txt
 
-# Run tests to verify (143 passed = environment is good)
+# Run tests to verify (227 passed = environment is good)
 pytest tests/ -v
 ```
 
@@ -269,7 +269,7 @@ This strategy-internalization layer went through a full production hardening cyc
 - Multi-model TDD workflow (models took turns writing tests → review → implement)
 - Six-category sanitization before pushing to public GitHub
 - Real-world validation: miss rate went from ≈100% (Skill soft-match) to 0% (code-level hook)
-- 143 TDD tests with A/B reverse validation
+- 227 TDD tests with A/B reverse validation
 
 It was battle-tested in production, not a proof of concept.
 
