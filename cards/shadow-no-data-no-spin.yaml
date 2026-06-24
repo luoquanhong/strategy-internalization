@@ -17,4 +17,4 @@ actions:
 - 明确告知信息不足而非静默失败
 priority: 8
 source: insights/2026-06-13-Anthropic适配与策略落地卡点-ReasoningBank推理产出.md
-status: shadow
+status: sample

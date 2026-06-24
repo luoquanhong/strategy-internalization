@@ -22,7 +22,7 @@ def load_active_cards(cards_dir: str = "cards") -> list[StrategyCard]:
         if not isinstance(data, dict):
             continue
         status = data.get("status")
-        if status not in ("active", "watch"):
+        if status not in ("active", "watch", "sample"):
             continue
         card = StrategyCard(
             id=data["id"],
@@ -168,6 +168,9 @@ def retrieve(
 
     # 2. load cards
     all_cards = load_active_cards(cards_dir)
+    # Separate sample cards — they skip holdout (need consistent exposure to gather data)
+    regular_cards = [c for c in all_cards if c.status in ("active", "watch")]
+    sample_cards = [c for c in all_cards if c.status == "sample"]
     if not all_cards:
         text = compile_packet([])
         tokens = estimate_tokens(text)
@@ -193,11 +196,12 @@ def retrieve(
         )
 
     # 3. experiment: holdout gate (only if experiment_db is provided)
+    #    Sample cards skip holdout — they need data, not controls.
     if experiment_db is not None:
         rng = _rng if _rng is not None else random.random
         now = _now if _now is not None else time.time()
         kept_cards = []
-        for card in all_cards:
+        for card in regular_cards:
             if experiment.should_holdout(card, rng=rng, now=now):
                 experiment.record_exposure(
                     experiment_db, request_id, card.id,
@@ -205,7 +209,8 @@ def retrieve(
                 )
             else:
                 kept_cards.append(card)
-        all_cards = kept_cards
+        regular_cards = kept_cards
+        all_cards = regular_cards + sample_cards
         if not all_cards:
             text = compile_packet([])
             tokens = estimate_tokens(text)
@@ -238,8 +243,12 @@ def retrieve(
         scored.append((card, score))
     scored.sort(key=lambda x: x[1], reverse=True)
 
+    # 4b. separate sample from regular scored results
+    regular_scored = [(c, s) for c, s in scored if c.status in ("active", "watch")]
+    sample_scored = [(c, s) for c, s in scored if c.status == "sample"]
+
     # 5. degrade gate
-    if scored[0][1] <= degrade_threshold:
+    if not regular_scored or regular_scored[0][1] <= degrade_threshold:
         degraded = True
         general_cards = [c for c in all_cards if "general" in c.scenario_tags]
         general_cards.sort(key=lambda c: c.priority, reverse=True)
@@ -247,7 +256,7 @@ def retrieve(
         selected_scores = [score_card(c, signals) for c in selected]
     else:
         degraded = False
-        relevant_pairs = [pair for pair in scored if pair[1] >= degrade_threshold]
+        relevant_pairs = [pair for pair in regular_scored if pair[1] >= degrade_threshold]
         effective_cap = max_cards if relevant_pairs[0][1] >= high_confidence_threshold else 1
         selected_pairs = relevant_pairs[:effective_cap]
         selected = [pair[0] for pair in selected_pairs]
@@ -276,6 +285,23 @@ def retrieve(
         final_cards.append(card)
         final_scores.append(score)
 
+    text = compile_packet(final_cards)
+    tokens = estimate_tokens(text)
+
+    # 7b. sample gate: inject at most 1 high-scoring sample card
+    #     Sample cards are trial cards — inject only when score >= high_confidence_threshold
+    #     to avoid polluting the main flow with low-quality experimental cards.
+    if sample_scored:
+        best_sample, best_sample_score = sample_scored[0]
+        if best_sample_score >= high_confidence_threshold:
+            # Respect token budget — only append if it fits
+            test_cards = final_cards + [best_sample]
+            test_text = compile_packet(test_cards)
+            if estimate_tokens(test_text) <= max_tokens:
+                final_cards.append(best_sample)
+                final_scores.append(best_sample_score)
+
+    # Recompute text/tokens after sample gate (sample card may have been added)
     text = compile_packet(final_cards)
     tokens = estimate_tokens(text)
 

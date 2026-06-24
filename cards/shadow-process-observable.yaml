@@ -20,4 +20,4 @@ actions:
 priority: 9
 source: insights/2026-06-13-Anthropic适配与策略落地卡点-ReasoningBank推理产出.md; 2026-06-13-智能路由实战踩坑-ReasoningBank推理产出.md;
   2026-06-13-框架评估与方案迭代方法论-ReasoningBank推理产出.md
-status: shadow
+status: sample

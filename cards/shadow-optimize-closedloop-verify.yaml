@@ -22,5 +22,5 @@ actions:
 - 输出具体改善数值（如节省百分比或绝对数量）
 - 形成分析-假设-执行-验证完整闭环
 priority: 7
-status: shadow
+status: sample
 source: insights/策略-优化效果闭环验证.md
